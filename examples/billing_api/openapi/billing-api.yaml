@@ -1,0 +1,600 @@
+openapi: '3.1.1'
+info:
+  title: Billing API
+  description: Example billing service with customers and invoices. Data is in-memory and re-seeded on startup.
+  version: v1
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      operationId: Health
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnonymousTypeOfstring'
+  /customers:
+    get:
+      tags:
+        - Customers
+      summary: List customers
+      description: 'Returns all customers. Optionally filter by a case-insensitive search on name, email or company.'
+      operationId: ListCustomers
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Customer'
+    post:
+      tags:
+        - Customers
+      summary: Create a customer
+      operationId: CreateCustomer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCustomerRequest'
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpValidationProblemDetails'
+  '/customers/{id}':
+    get:
+      tags:
+        - Customers
+      summary: Get a customer by id
+      operationId: GetCustomer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  '/customers/{id}/invoices':
+    get:
+      tags:
+        - Customers
+      summary: List a customer's invoices
+      operationId: ListCustomerInvoices
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/InvoiceStatus'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Invoice'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /invoices:
+    get:
+      tags:
+        - Invoices
+      summary: List invoices
+      description: Returns all invoices. Optionally filter by customerId and/or status.
+      operationId: ListInvoices
+      parameters:
+        - name: customerId
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/InvoiceStatus'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Invoice'
+    post:
+      tags:
+        - Invoices
+      summary: Create an invoice
+      description: 'Creates a new invoice in Draft status. Subtotal, tax and total are calculated from the line items.'
+      operationId: CreateInvoice
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInvoiceRequest'
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpValidationProblemDetails'
+  '/invoices/{id}':
+    get:
+      tags:
+        - Invoices
+      summary: Get an invoice by id
+      operationId: GetInvoice
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  '/invoices/{id}/send':
+    post:
+      tags:
+        - Invoices
+      summary: Mark a draft invoice as sent
+      operationId: SendInvoice
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  '/invoices/{id}/pay':
+    post:
+      tags:
+        - Invoices
+      summary: Record payment for a sent or overdue invoice
+      operationId: PayInvoice
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  '/invoices/{id}/void':
+    post:
+      tags:
+        - Invoices
+      summary: Void an unpaid invoice
+      operationId: VoidInvoice
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+components:
+  schemas:
+    Address:
+      required:
+        - line1
+        - line2
+        - city
+        - region
+        - postalCode
+        - country
+      type: object
+      properties:
+        line1:
+          type: string
+        line2:
+          type:
+            - 'null'
+            - string
+        city:
+          type: string
+        region:
+          type:
+            - 'null'
+            - string
+        postalCode:
+          type: string
+        country:
+          maxLength: 2
+          minLength: 2
+          type: string
+    AnonymousTypeOfstring:
+      required:
+        - status
+      type: object
+      properties:
+        status:
+          type:
+            - 'null'
+            - string
+    CreateCustomerRequest:
+      required:
+        - name
+        - email
+      type: object
+      properties:
+        name:
+          maxLength: 200
+          minLength: 1
+          type: string
+        email:
+          type: string
+        company:
+          maxLength: 200
+          minLength: 0
+          type:
+            - 'null'
+            - string
+        phone:
+          type:
+            - 'null'
+            - string
+        billingAddress:
+          oneOf:
+            - type: 'null'
+            - $ref: '#/components/schemas/Address'
+    CreateInvoiceRequest:
+      required:
+        - lineItems
+      type: object
+      properties:
+        customerId:
+          maximum: 2147483647
+          minimum: 1
+          type: integer
+          format: int32
+        currency:
+          maxLength: 3
+          minLength: 3
+          type: string
+          description: ISO 4217 currency code. Defaults to USD.
+        issueDate:
+          type:
+            - 'null'
+            - string
+          description: Defaults to today (UTC).
+          format: date
+        dueDate:
+          type:
+            - 'null'
+            - string
+          description: Defaults to 30 days after the issue date.
+          format: date
+        taxRate:
+          maximum: 1
+          minimum: 0
+          type: number
+          description: 'Tax rate as a fraction, e.g. 0.08 for 8%.'
+          format: double
+        notes:
+          maxLength: 1000
+          minLength: 0
+          type:
+            - 'null'
+            - string
+        lineItems:
+          minItems: 1
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateLineItemRequest'
+    CreateLineItemRequest:
+      required:
+        - description
+      type: object
+      properties:
+        description:
+          maxLength: 500
+          minLength: 1
+          type: string
+        quantity:
+          maximum: 1000000
+          minimum: 0.01
+          type: number
+          format: double
+        unitPrice:
+          maximum: 10000000
+          minimum: 0
+          type: number
+          format: double
+    Customer:
+      required:
+        - id
+        - name
+        - email
+        - createdAt
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        email:
+          type: string
+        company:
+          type:
+            - 'null'
+            - string
+        phone:
+          type:
+            - 'null'
+            - string
+        billingAddress:
+          oneOf:
+            - type: 'null'
+            - $ref: '#/components/schemas/Address'
+        createdAt:
+          type: string
+          format: date-time
+      description: A billable customer account.
+    HttpValidationProblemDetails:
+      type: object
+      properties:
+        type:
+          type:
+            - 'null'
+            - string
+        title:
+          type:
+            - 'null'
+            - string
+        status:
+          type:
+            - 'null'
+            - integer
+          format: int32
+        detail:
+          type:
+            - 'null'
+            - string
+        instance:
+          type:
+            - 'null'
+            - string
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+    Invoice:
+      required:
+        - id
+        - number
+        - customerId
+        - status
+        - currency
+        - issueDate
+        - dueDate
+        - lineItems
+        - taxRate
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        number:
+          type: string
+        customerId:
+          type: integer
+          format: int32
+        status:
+          $ref: '#/components/schemas/InvoiceStatus'
+        currency:
+          type: string
+        issueDate:
+          type: string
+          format: date
+        dueDate:
+          type: string
+          format: date
+        paidAt:
+          type:
+            - 'null'
+            - string
+          format: date-time
+        notes:
+          type:
+            - 'null'
+            - string
+        lineItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/LineItem'
+        taxRate:
+          type: number
+          description: 'Tax rate as a fraction, e.g. 0.08 for 8%.'
+          format: double
+        subtotal:
+          type: number
+          format: double
+        tax:
+          type: number
+          format: double
+        total:
+          type: number
+          format: double
+      description: An invoice issued to a customer.
+    InvoiceStatus:
+      enum:
+        - Draft
+        - Sent
+        - Paid
+        - Overdue
+        - Void
+    LineItem:
+      required:
+        - description
+        - quantity
+        - unitPrice
+      type: object
+      properties:
+        description:
+          type: string
+        quantity:
+          type: number
+          format: double
+        unitPrice:
+          type: number
+          format: double
+        amount:
+          type: number
+          format: double
+    ProblemDetails:
+      type: object
+      properties:
+        type:
+          type:
+            - 'null'
+            - string
+        title:
+          type:
+            - 'null'
+            - string
+        status:
+          type:
+            - 'null'
+            - integer
+          format: int32
+        detail:
+          type:
+            - 'null'
+            - string
+        instance:
+          type:
+            - 'null'
+            - string
+tags:
+  - name: Health
+  - name: Customers
+  - name: Invoices

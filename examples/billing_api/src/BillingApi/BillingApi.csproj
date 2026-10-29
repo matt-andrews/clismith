@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- XML doc comments flow into the OpenAPI descriptions. -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <!-- Build-time OpenAPI (YAML) generation. Disable with -p:OpenApiExportOnBuild=false -->
+  <PropertyGroup>
+    <OpenApiExportOnBuild Condition="'$(OpenApiExportOnBuild)' == ''">true</OpenApiExportOnBuild>
+    <OpenApiExportPath Condition="'$(OpenApiExportPath)' == ''">$(MSBuildProjectDirectory)/../../openapi/billing-api.yaml</OpenApiExportPath>
+    <_DotNetHost>$(DOTNET_HOST_PATH)</_DotNetHost>
+    <_DotNetHost Condition="'$(_DotNetHost)' == ''">dotnet</_DotNetHost>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.13" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.18.3" />
+  </ItemGroup>
+
+  <Target Name="ExportOpenApiYaml"
+          AfterTargets="Build"
+          Condition="'$(OpenApiExportOnBuild)' == 'true'"
+          Inputs="$(TargetPath)"
+          Outputs="$(OpenApiExportPath)">
+    <Exec Command="&quot;$(_DotNetHost)&quot; &quot;$(TargetPath)&quot; --export-openapi &quot;$(OpenApiExportPath)&quot;"
+          EnvironmentVariables="ASPNETCORE_ENVIRONMENT=Development;Logging__LogLevel__Default=Warning" />
+    <Touch Files="$(OpenApiExportPath)" />
+  </Target>
+
+</Project>

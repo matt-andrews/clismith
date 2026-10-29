@@ -1,0 +1,60 @@
+@host = http://localhost:5080
+
+### List customers
+GET {{host}}/customers
+
+### Search customers
+GET {{host}}/customers?search=globex
+
+### Get one customer
+GET {{host}}/customers/1
+
+### A customer's invoices (optionally ?status=Paid)
+GET {{host}}/customers/1/invoices
+
+### Create a customer
+POST {{host}}/customers
+Content-Type: application/json
+
+{
+  "name": "Ada Lovelace",
+  "email": "ada@analytical.example",
+  "company": "Analytical Engines Ltd",
+  "phone": "+44 20 7946 0000",
+  "billingAddress": {
+    "line1": "12 St James's Square",
+    "city": "London",
+    "postalCode": "SW1Y 4JH",
+    "country": "GB"
+  }
+}
+
+### List invoices (filters: customerId, status = Draft|Sent|Paid|Overdue|Void)
+GET {{host}}/invoices?status=Overdue
+
+### Get one invoice
+GET {{host}}/invoices/1
+
+### Create an invoice (starts as Draft; totals are calculated)
+POST {{host}}/invoices
+Content-Type: application/json
+
+{
+  "customerId": 1,
+  "currency": "USD",
+  "taxRate": 0.08,
+  "notes": "Net 30",
+  "lineItems": [
+    { "description": "Consulting", "quantity": 10, "unitPrice": 150 },
+    { "description": "Hosting (monthly)", "quantity": 1, "unitPrice": 49.99 }
+  ]
+}
+
+### Lifecycle: Draft -> Sent -> Paid  (or Void while unpaid)
+POST {{host}}/invoices/17/send
+
+###
+POST {{host}}/invoices/17/pay
+
+###
+POST {{host}}/invoices/14/void

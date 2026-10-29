@@ -1,0 +1,14 @@
+services:
+  billing-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: billing-api:latest
+    container_name: billing-api
+    restart: unless-stopped
+    ports:
+      # Stable host port -> container port. Change the left side if 5080 is taken.
+      - "5080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      Logging__LogLevel__Default: Information

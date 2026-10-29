@@ -1,0 +1,12 @@
+**/bin/
+**/obj/
+**/.vs/
+**/.vscode/
+**/.idea/
+**/*.user
+.git/
+.gitignore
+openapi/
+Dockerfile
+docker-compose*.yml
+README.md
