@@ -1,0 +1,36 @@
+name: Billing
+about: The billing API
+
+commands:
+  - module: billing
+    resource: health
+    verb: get
+    route: /health
+    method: GET
+    result:
+      $ref: "#/components/schemas/AnonymousTypeOfstring"
+
+  - module: billing
+    resource: customers
+    verb: get
+    about: Get a customer by id
+    route: /customers/{{id}}
+    method: GET
+    result:
+      $ref: "#/components/schemas/Customer"
+    args:
+      - name: id
+        required: true
+        type: int
+
+  - module: billing
+    resource: customers
+    verb: list
+    about: Returns all customers. Optionally filter by a case-insensitive search on name, email or company.
+    route: /customers
+    method: GET
+    result:
+      $ref: "#/components/schemas/Customer"
+    args:
+      - name: search
+        type: string

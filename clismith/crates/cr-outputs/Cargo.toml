@@ -1,0 +1,12 @@
+[package]
+name = "cr-outputs"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+cr-core = { workspace = true }
+
+comfy-table = { version = "8" }
+enum_dispatch = "0"
+serde = { workspace = true }
+serde_json = { workspace = true }

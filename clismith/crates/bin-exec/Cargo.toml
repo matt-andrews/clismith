@@ -1,0 +1,21 @@
+[package]
+name = "bin-exec"
+version = "0.0.0"
+edition = "2024"
+
+[[bin]]
+name = "clismith"
+path = "src/main.rs"
+
+[dependencies]
+cr-core = { workspace = true }
+cr-outputs = { workspace = true }
+cr-req-dispatch = { workspace = true }
+
+clap = { version = "4.6", features = ["derive", "string"] }
+noyalib = { workspace = true }
+serde = { workspace = true }
+serde_core = { version = "1" }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }

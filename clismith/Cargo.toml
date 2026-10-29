@@ -1,0 +1,22 @@
+[workspace]
+resolver = "3"
+members = [
+    "crates/bin-exec",
+    "crates/cr-core",
+    "crates/cr-outputs",
+    "crates/cr-req-dispatch",
+]
+
+[workspace.dependencies]
+cr-core = { path = "crates/cr-core" }
+cr-outputs = { path = "crates/cr-outputs" }
+cr-req-dispatch = { path = "crates/cr-req-dispatch" }
+
+anyhow = { version = "1" }
+dotenvy = { version = "0" }
+noyalib = { version = "0", features = ["compat-serde-yaml"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+thiserror = { version = "2" }
+tokio = { version = "1", features = ["full"] }
+uuid = { version = "1", features = ["v4", "serde"] }

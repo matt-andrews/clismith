@@ -1,0 +1,31 @@
+name: Test
+about: something something darkside
+profiles: [prod, staging, local]
+
+grammar:
+  pattern: "{ module } { resource } { verb }"
+  naming:
+    case: kebab
+  verbs:
+    - { method: GET, target: item, verb: get }
+    - { method: GET, target: collection, verb: list }
+
+global_flags:
+  - long: verbose
+    short: v
+    type: bool
+    about: "Enable verbose logging"
+    target: "SYS_VERBOSE"
+
+  - long: head
+    short: I
+    type: bool
+    about: "Force the output to be request headers instead of content"
+    target: "SYS_HEAD"
+
+  - long: output
+    short: o
+    values: [json, table, none]
+    default: json
+    about: "Set the printed structure"
+    target: "SYS_OUTPUT"
