@@ -4,7 +4,7 @@ version = "0.0.0"
 edition = "2024"
 
 [[bin]]
-name = "clismith"
+name = "clismith-exec"
 path = "src/main.rs"
 
 [dependencies]
@@ -12,7 +12,7 @@ cr-core = { workspace = true }
 cr-outputs = { workspace = true }
 cr-req-dispatch = { workspace = true }
 
-clap = { version = "4.6", features = ["derive", "string"] }
+clap = { workspace = true }
 noyalib = { workspace = true }
 serde = { workspace = true }
 serde_core = { version = "1" }
