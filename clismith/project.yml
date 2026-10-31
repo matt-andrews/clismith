@@ -1,4 +1,5 @@
-name: Test
+name: test
+display: Test
 about: something something darkside
 profiles: [prod, staging, local]
 

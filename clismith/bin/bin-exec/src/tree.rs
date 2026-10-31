@@ -5,12 +5,17 @@ use std::{
 };
 
 use clap::{Arg, ArgAction, ArgMatches, Command, builder::PossibleValuesParser, value_parser};
-use cr_core::v1spec::{
-    common::{ParamSpec, ValueKind},
-    core::CoreSpec,
-    module::{CommandSpec, ModuleSpec},
+use cr_core::{
+    helpers::deserialize_yaml_from_path,
+    v1spec::{
+        compiled::{
+            core::CoreCompiled,
+            module::{CommandCompiled, ModuleCompiled},
+            param::ParamCompiled,
+        },
+        value_kind::ValueKind,
+    },
 };
-use noyalib::compat::serde_yaml;
 
 use crate::{
     errors::BuildError,
@@ -41,47 +46,24 @@ fn meaning(slot: &Option<String>) -> String {
 #[derive(Debug)]
 pub struct CommandTree {
     pattern: Pattern,
-    globals: Vec<ParamSpec>,
-    specs: Vec<CommandSpec>,
+    globals: Vec<ParamCompiled>,
+    specs: Vec<CommandCompiled>,
     root: Node,
     clap: Command,
-    triggered_command_spec: Option<CommandSpec>,
+    triggered_command_spec: Option<CommandCompiled>,
 }
 
 #[derive(Debug)]
 pub struct Compilation {
-    pub core: CoreSpec,
-    pub module: ModuleSpec,
-}
-
-fn get_obj_from_fpath<T: for<'de> serde_core::de::Deserialize<'de> + 'static>(
-    dir: &Path,
-    file: &str,
-) -> std::result::Result<T, noyalib::compat::serde_yaml::Error> {
-    let src = std::fs::read_to_string(format!("{}/{}", dir.display(), file));
-    if let Err(e) = src {
-        eprintln!(
-            "{}",
-            format_args!(
-                "error: can't read {}/{}: {}",
-                dir.display(),
-                file,
-                e.to_string()
-            )
-        );
-        return Err(noyalib::compat::serde_yaml::Error::from(
-            noyalib::Error::Deserialize("failed to deserialize".to_string()),
-        ));
-    }
-
-    serde_yaml::from_str(&src.unwrap())
+    pub core: CoreCompiled,
+    pub module: ModuleCompiled,
 }
 
 impl CommandTree {
     pub fn from_yaml(dir: &Path) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
         let config: Compilation = Compilation {
-            core: get_obj_from_fpath(dir, "core.yml")?,
-            module: get_obj_from_fpath(dir, "billing-module.yml")?,
+            core: deserialize_yaml_from_path(dir, "core.yml")?,
+            module: deserialize_yaml_from_path(dir, "billing-module.yml")?,
         };
         Ok(Self::compile(config)?)
     }
@@ -95,7 +77,7 @@ impl CommandTree {
         let mut root = Node::default();
         let mut seen: HashMap<Vec<String>, usize> = HashMap::new();
         let mut paths: Vec<String> = Vec::with_capacity(config.module.commands.len());
-        let mut triggered_spec: Option<CommandSpec> = None;
+        let mut triggered_spec: Option<CommandCompiled> = None;
 
         for (index, spec) in config.module.commands.iter().enumerate() {
             let desc = spec.describe();
@@ -344,11 +326,11 @@ fn invalid_word(w: &str) -> Option<&'static str> {
 
 fn validate_params(
     context: &str,
-    params: &[ParamSpec],
-    existing: &[ParamSpec],
+    params: &[ParamCompiled],
+    existing: &[ParamCompiled],
     positional: bool,
 ) -> Result<(), BuildError> {
-    let err = |p: &ParamSpec, reason: &str| BuildError::InvalidParam {
+    let err = |p: &ParamCompiled, reason: &str| BuildError::InvalidParam {
         context: context.to_string(),
         name: p.long.clone(),
         reason: reason.to_string(),
@@ -420,7 +402,7 @@ fn validate_params(
     Ok(())
 }
 
-fn to_arg(p: &ParamSpec, positional: bool) -> Arg {
+fn to_arg(p: &ParamCompiled, positional: bool) -> Arg {
     let mut a = Arg::new(p.long.clone());
     if let Some(h) = &p.about {
         a = a.help(h.clone());
@@ -455,7 +437,7 @@ fn to_arg(p: &ParamSpec, positional: bool) -> Arg {
     a.required(required)
 }
 
-fn extract(p: &ParamSpec, m: &ArgMatches) -> Option<Value> {
+fn extract(p: &ParamCompiled, m: &ArgMatches) -> Option<Value> {
     fn grab<T: Clone + Send + Sync + 'static>(
         m: &ArgMatches,
         name: &str,

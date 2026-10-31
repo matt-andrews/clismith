@@ -1,7 +1,9 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Deserialize)]
-pub struct ParamSpec {
+use crate::v1spec::value_kind::ValueKind;
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ParamCompiled {
     #[serde(alias = "name")]
     pub long: String,
     #[serde(default)]
@@ -20,15 +22,16 @@ pub struct ParamSpec {
     pub choices: Option<Vec<String>>,
     #[serde(default)]
     pub target: Option<String>,
+    #[serde(default, rename = "where")]
+    pub param_where: ParamWhere,
 }
 
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Deserialize, Serialize)]
 #[serde(rename_all = "lowercase")]
-pub enum ValueKind {
+pub enum ParamWhere {
     #[default]
-    String,
-    Int,
-    Float,
-    Bool,
-    Path,
+    Query,
+    Route,
+    Header,
+    Body,
 }

@@ -1,0 +1,15 @@
+[package]
+name = "bin-builder"
+version = "0.0.0"
+edition = "2024"
+
+[[bin]]
+name = "clismith-builder"
+path = "src/main.rs"
+
+[dependencies]
+cr-compiler = { workspace = true }
+cr-core = { workspace = true }
+
+anyhow = { workspace = true }
+clap = { workspace = true }

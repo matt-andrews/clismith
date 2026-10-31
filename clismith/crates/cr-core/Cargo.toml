@@ -4,6 +4,8 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
+anyhow = { workspace = true }
 noyalib = { workspace = true }
 serde = { workspace = true }
+serde_core = { version = "1" }
 serde_json = { workspace = true }

@@ -1,4 +1,5 @@
-name: Billing
+name: billing
+display: Billing
 about: The billing API
 
 commands:
@@ -7,8 +8,6 @@ commands:
     verb: get
     route: /health
     method: GET
-    result:
-      $ref: "#/components/schemas/AnonymousTypeOfstring"
 
   - module: billing
     resource: customers
@@ -16,12 +15,11 @@ commands:
     about: Get a customer by id
     route: /customers/{{id}}
     method: GET
-    result:
-      $ref: "#/components/schemas/Customer"
     args:
       - name: id
         required: true
         type: int
+        where: route
 
   - module: billing
     resource: customers
@@ -29,8 +27,7 @@ commands:
     about: Returns all customers. Optionally filter by a case-insensitive search on name, email or company.
     route: /customers
     method: GET
-    result:
-      $ref: "#/components/schemas/Customer"
     args:
       - name: search
         type: string
+        where: query

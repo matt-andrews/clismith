@@ -1,16 +1,16 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
-use crate::v1spec::common::ParamSpec;
+use crate::v1spec::authored::param::ParamSpec;
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ModuleSpec {
     pub name: String,
     pub about: Option<String>,
     pub commands: Vec<CommandSpec>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct CommandSpec {
     #[serde(default)]
     pub about: Option<String>,
@@ -30,7 +30,7 @@ pub struct CommandSpec {
     pub bindings: BTreeMap<String, String>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct SchemaRef {
     #[serde(rename = "$ref")]
     pub reference: String,

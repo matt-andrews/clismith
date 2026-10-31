@@ -15,7 +15,6 @@ cr-req-dispatch = { workspace = true }
 clap = { workspace = true }
 noyalib = { workspace = true }
 serde = { workspace = true }
-serde_core = { version = "1" }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true }

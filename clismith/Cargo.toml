@@ -1,18 +1,22 @@
 [workspace]
 resolver = "3"
 members = [
-    "crates/bin-exec",
+    "bin/bin-builder",
+    "bin/bin-exec",
+    "crates/cr-compiler",
     "crates/cr-core",
     "crates/cr-outputs",
     "crates/cr-req-dispatch",
 ]
 
 [workspace.dependencies]
+cr-compiler = { path = "crates/cr-compiler" }
 cr-core = { path = "crates/cr-core" }
 cr-outputs = { path = "crates/cr-outputs" }
 cr-req-dispatch = { path = "crates/cr-req-dispatch" }
 
 anyhow = { version = "1" }
+clap = { version = "4.6", features = ["derive", "string"] }
 dotenvy = { version = "0" }
 noyalib = { version = "0", features = ["compat-serde-yaml"] }
 serde = { version = "1", features = ["derive"] }
