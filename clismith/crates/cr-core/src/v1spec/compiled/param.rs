@@ -22,16 +22,4 @@ pub struct ParamCompiled {
     pub choices: Option<Vec<String>>,
     #[serde(default)]
     pub target: Option<String>,
-    #[serde(default, rename = "where")]
-    pub param_where: ParamWhere,
-}
-
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Deserialize, Serialize)]
-#[serde(rename_all = "lowercase")]
-pub enum ParamWhere {
-    #[default]
-    Query,
-    Route,
-    Header,
-    Body,
 }

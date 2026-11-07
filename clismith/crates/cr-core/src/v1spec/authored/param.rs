@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::v1spec::value_kind::ValueKind;
+use crate::v1spec::{compiled, value_kind::ValueKind};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ParamSpec {
@@ -22,4 +22,20 @@ pub struct ParamSpec {
     pub choices: Option<Vec<String>>,
     #[serde(default)]
     pub target: Option<String>,
+}
+
+impl ParamSpec {
+    pub fn to_compiled(&self) -> compiled::param::ParamCompiled {
+        compiled::param::ParamCompiled {
+            long: self.long.to_string(),
+            short: self.short,
+            about: self.about.clone(),
+            kind: self.kind,
+            required: self.required,
+            multiple: self.multiple,
+            default: self.default.clone(),
+            choices: self.choices.clone(),
+            target: self.target.clone(),
+        }
+    }
 }
