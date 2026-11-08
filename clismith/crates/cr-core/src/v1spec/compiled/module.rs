@@ -9,6 +9,8 @@ use crate::v1spec::compiled::param::ParamCompiled;
 pub struct ModuleCompiled {
     pub name: String,
     pub about: Option<String>,
+    #[serde(default)]
+    pub base_uri: Option<String>,
     pub commands: Vec<CommandCompiled>,
 }
 

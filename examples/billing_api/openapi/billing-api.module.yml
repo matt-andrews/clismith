@@ -1,2 +1,3 @@
 name: billing
 openapi_spec: billing-api.yaml
+base_uri: http://localhost:5080

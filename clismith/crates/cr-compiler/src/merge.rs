@@ -106,6 +106,7 @@ fn merge_module(project: &CoreSpec, module: &ModuleSpec, spec: Option<&Spec>) ->
         })),
         openapi_spec: module.openapi_spec.clone(),
         commands,
+        base_uri: module.base_uri.clone(),
     }
 }
 

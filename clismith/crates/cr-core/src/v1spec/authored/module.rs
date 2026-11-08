@@ -11,6 +11,8 @@ pub struct ModuleSpec {
     #[serde(default)]
     pub about: Option<String>,
     #[serde(default)]
+    pub base_uri: Option<String>,
+    #[serde(default)]
     pub commands: Vec<CommandSpec>,
 }
 
@@ -51,6 +53,7 @@ impl ModuleSpec {
                 .into_iter()
                 .map(|m| m.to_compiled())
                 .collect(),
+            base_uri: self.base_uri.clone(),
         }
     }
 }
