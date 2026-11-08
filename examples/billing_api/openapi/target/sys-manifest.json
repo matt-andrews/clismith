@@ -1,0 +1,1 @@
+{"name":"manifest","about":"Commands for viewing and updating the manifest","commands":[{"about":"List the available modules in the manifest","target":"SYS_CMD_MANIFEST_LIST","args":[],"flags":[],"module":"manifest","verb":"list"}]}

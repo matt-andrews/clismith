@@ -4,7 +4,7 @@ about: something something darkside
 profiles: [prod, staging, local]
 
 grammar:
-  pattern: "{ module } { resource } { verb }"
+  pattern: "{ module } { resource? } { verb }"
   naming:
     case: kebab
   verbs:
@@ -20,17 +20,17 @@ global_flags:
     short: v
     type: bool
     about: "Enable verbose logging"
-    target: "SYS_VERBOSE"
+    target: "SYS_FLAG_VERBOSE"
 
   - long: head
     short: I
     type: bool
     about: "Force the output to be request headers instead of content"
-    target: "SYS_HEAD"
+    target: "SYS_FLAG_HEAD"
 
   - long: output
     short: o
     choices: [json, table, none]
     default: json
     about: "Set the printed structure"
-    target: "SYS_OUTPUT"
+    target: "SYS_FLAG_OUTPUT"

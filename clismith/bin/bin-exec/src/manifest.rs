@@ -15,6 +15,14 @@ pub struct ManifestModule {
     pub target: String,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ManifestDisplayModule {
+    #[serde(rename = "module")]
+    pub name: String,
+    #[serde(rename = "version")]
+    pub version: String,
+}
+
 impl Manifest {
     pub fn latest_module<'a>(&'a self, name: &str) -> Option<&'a ManifestModule> {
         //
@@ -24,5 +32,14 @@ impl Manifest {
             .filter_map(|m| Version::parse(&m.version).ok().map(|v| (v, m)))
             .max_by(|(a, _), (b, _)| a.cmp(b))
             .map(|(_, m)| m)
+    }
+}
+
+impl ManifestModule {
+    pub fn to_display_module(&self) -> ManifestDisplayModule {
+        ManifestDisplayModule {
+            name: self.name.clone(),
+            version: self.version.clone(),
+        }
     }
 }

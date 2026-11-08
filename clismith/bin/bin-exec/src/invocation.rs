@@ -13,9 +13,9 @@ pub enum Value {
     List(Vec<Value>),
 }
 
-pub const SYS_VERBOSE: &str = "SYS_VERBOSE";
-pub const SYS_OUTPUT: &str = "SYS_OUTPUT";
-pub const SYS_HEAD: &str = "SYS_HEAD";
+pub const SYS_FLAG_VERBOSE: &str = "SYS_FLAG_VERBOSE";
+pub const SYS_FLAG_OUTPUT: &str = "SYS_FLAG_OUTPUT";
+pub const SYS_FLAG_HEAD: &str = "SYS_FLAG_HEAD";
 
 #[derive(Debug, Clone)]
 pub struct Invocation {
@@ -35,15 +35,15 @@ impl Invocation {
     }
 
     pub fn is_verbose(&self) -> bool {
-        self.flag(SYS_VERBOSE)
+        self.flag(SYS_FLAG_VERBOSE)
     }
 
     pub fn get_output(&self) -> Option<&str> {
-        self.str(SYS_OUTPUT)
+        self.str(SYS_FLAG_OUTPUT)
     }
 
     pub fn is_head(&self) -> bool {
-        self.flag(SYS_HEAD)
+        self.flag(SYS_FLAG_HEAD)
     }
 
     pub fn flag(&self, name: &str) -> bool {

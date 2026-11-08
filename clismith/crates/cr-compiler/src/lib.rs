@@ -1,11 +1,13 @@
 use std::path::Path;
 
+use crate::core_modules::emit_core_modules;
 use crate::emit::emit;
 use crate::load::load;
 use crate::merge::merge;
 use crate::models::{LoadResponse, MergeResponse};
 use crate::validate::validate;
 
+mod core_modules;
 mod emit;
 mod load;
 mod merge;
@@ -18,6 +20,7 @@ pub fn compile(root_dir: &Path, target_dir: &Path) -> anyhow::Result<()> {
     let merge: MergeResponse = merge(&load)?;
     validate(&merge)?;
     emit(&merge, target_dir)?;
+    emit_core_modules(target_dir)?;
 
     Ok(())
 }

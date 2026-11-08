@@ -12,6 +12,7 @@ cr-core = { workspace = true }
 cr-outputs = { workspace = true }
 cr-req-dispatch = { workspace = true }
 
+anyhow = { workspace = true }
 clap = { workspace = true }
 noyalib = { workspace = true }
 semver = { version = "1" }

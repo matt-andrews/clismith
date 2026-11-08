@@ -1,4 +1,8 @@
-use std::{collections::BTreeMap, path::PathBuf, process};
+use std::{
+    collections::BTreeMap,
+    path::{Path, PathBuf},
+    process,
+};
 
 use cr_core::{helpers::env_or, v1spec::param_where::ParamWhere};
 use cr_outputs::{AnyOutput, OutputShape, output_for};
@@ -7,13 +11,16 @@ use cr_req_dispatch::{
     request::{HttpMethod, HttpRequestMessage},
 };
 
-use crate::{invocation::Invocation, tree::CommandTree};
+use crate::{exit_code::ExitCode, invocation::Invocation, tree::CommandTree};
 
 mod errors;
+mod exit_code;
 mod invocation;
 mod manifest;
 mod pattern;
+mod sys_dispatcher;
 mod tree;
+mod utils;
 
 #[tokio::main]
 async fn main() -> process::ExitCode {
@@ -30,15 +37,21 @@ async fn main() -> process::ExitCode {
 
     let inv = tree.unwrap().parse().unwrap_or_else(|e| e.exit());
 
-    get_exit(dispatch(&inv).await)
+    get_exit(dispatch(&inv, &build_path).await)
 }
 
-async fn dispatch(inv: &Invocation) -> ExitCode {
+async fn dispatch(inv: &Invocation, dir: &Path) -> ExitCode {
     if inv.is_verbose() {
         eprintln!(
             "[parsed] path={:?}\n[parsed] bindings={:?}\n[parsed] params={:?}",
             inv.path, inv.bindings, inv.params
         );
+    }
+
+    if let Some(sys_dispatch) = sys_dispatcher::dispatch(inv, dir) {
+        let output_printer: AnyOutput = output_for(inv.get_output().unwrap_or_default());
+        output_printer.print_output(sys_dispatch);
+        return ExitCode::Success;
     }
 
     match http_dispatch(HttpRequestMessage {
@@ -114,10 +127,4 @@ fn route_resolver(inv: &Invocation) -> String {
 
 fn get_exit(exit: ExitCode) -> process::ExitCode {
     process::ExitCode::from(exit as u8)
-}
-
-#[repr(i32)]
-enum ExitCode {
-    Success = 0,
-    Failed = 1,
 }

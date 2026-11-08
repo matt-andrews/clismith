@@ -6,6 +6,11 @@
       "name": "billing",
       "version": "1.0.0",
       "target": "billing.json"
+    },
+    {
+      "name": "manifest",
+      "version": "1.0.0",
+      "target": "sys-manifest.json"
     }
   ]
 }

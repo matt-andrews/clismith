@@ -6,7 +6,7 @@ use std::{
 
 use clap::{Arg, ArgAction, ArgMatches, Command, builder::PossibleValuesParser, value_parser};
 use cr_core::{
-    helpers::{deserialize_json_from_path, env_or},
+    helpers::deserialize_json_from_path,
     v1spec::{
         compiled::{
             core::CoreCompiled,
@@ -22,6 +22,7 @@ use crate::{
     invocation::{Invocation, Value},
     manifest::Manifest,
     pattern::{Pattern, Segment},
+    utils::get_manifest,
 };
 
 #[derive(Debug, Default)]
@@ -62,8 +63,7 @@ pub struct Compilation {
 
 impl CommandTree {
     pub fn from_yaml(dir: &Path) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
-        let manifest: Manifest =
-            deserialize_json_from_path(dir, &env_or("MANIFEST_NAME", "manifest.json"))?;
+        let manifest: Manifest = get_manifest(dir)?;
         let manifest_module = manifest
             .latest_module(&get_module_name())
             .unwrap_or_else(|| panic!("module not found"));
