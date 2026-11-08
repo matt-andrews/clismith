@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-use crate::v1spec::value_kind::ValueKind;
+use crate::v1spec::{param_where::ParamWhere, value_kind::ValueKind};
 
 #[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -24,4 +24,6 @@ pub struct ParamCompiled {
     pub choices: Option<Vec<String>>,
     #[serde(default)]
     pub target: Option<String>,
+    #[serde(default, rename = "where")]
+    pub param_where: ParamWhere,
 }

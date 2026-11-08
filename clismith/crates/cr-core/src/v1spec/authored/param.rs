@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::v1spec::{compiled, value_kind::ValueKind};
+use crate::v1spec::{compiled, param_where::ParamWhere, value_kind::ValueKind};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ParamSpec {
@@ -22,6 +22,8 @@ pub struct ParamSpec {
     pub choices: Option<Vec<String>>,
     #[serde(default)]
     pub target: Option<String>,
+    #[serde(default, rename = "where")]
+    pub param_where: ParamWhere,
 }
 
 impl ParamSpec {
@@ -36,6 +38,7 @@ impl ParamSpec {
             default: self.default.clone(),
             choices: self.choices.clone(),
             target: self.target.clone(),
+            param_where: self.param_where,
         }
     }
 }

@@ -1,11 +1,15 @@
 use std::{collections::BTreeMap, path::PathBuf, process};
 
-use cr_core::helpers::env_or;
+use cr_core::{
+    helpers::env_or,
+    v1spec::{compiled::param::ParamCompiled, param_where::ParamWhere},
+};
 use cr_outputs::{AnyOutput, OutputShape, output_for};
 use cr_req_dispatch::{
     http_dispatch,
     request::{HttpMethod, HttpRequestMessage},
 };
+use noyalib::cst::format;
 
 use crate::{invocation::Invocation, tree::CommandTree};
 
@@ -42,7 +46,7 @@ async fn dispatch(inv: &Invocation) -> ExitCode {
 
     match http_dispatch(HttpRequestMessage {
         base_uri: inv.base_uri.clone(),
-        route: inv.triggered_command.clone().route.unwrap(),
+        route: route_resolver(inv),
         body: None,               //TODO
         headers: BTreeMap::new(), //TODO
         method: match inv
@@ -72,6 +76,23 @@ async fn dispatch(inv: &Invocation) -> ExitCode {
         }
         _ => ExitCode::Failed,
     }
+}
+
+fn route_resolver(inv: &Invocation) -> String {
+    //
+    let mut result = inv.triggered_command.clone().route.unwrap_or_default();
+
+    for param in inv
+        .triggered_command
+        .args
+        .iter()
+        .filter(|f| f.param_where == ParamWhere::Route)
+    {
+        let pattern = &format!("{{{}}}", param.target.clone().unwrap_or_default());
+        result = result.replace(pattern, inv.str(&param.long).unwrap_or_default())
+    }
+
+    result
 }
 
 fn get_exit(exit: ExitCode) -> process::ExitCode {

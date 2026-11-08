@@ -8,6 +8,7 @@ use cr_core::{
             module::{CommandSpec, ModuleSpec},
             param::ParamSpec,
         },
+        param_where::ParamWhere,
         value_kind::ValueKind,
     },
 };
@@ -89,6 +90,12 @@ fn merge_module(project: &CoreSpec, module: &ModuleSpec, spec: Option<&Spec>) ->
                                 multiple: false,
                                 required: v.required.unwrap_or_default(),
                                 choices: None,
+                                param_where: match v.location {
+                                    oas3::spec::ParameterIn::Path => ParamWhere::Route,
+                                    oas3::spec::ParameterIn::Query => ParamWhere::Query,
+                                    oas3::spec::ParameterIn::Header => ParamWhere::Header,
+                                    oas3::spec::ParameterIn::Cookie => ParamWhere::Cookie,
+                                }
                             }),
                             Err(_) => None,
                         })
