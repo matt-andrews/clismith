@@ -34,3 +34,8 @@ global_flags:
     default: json
     about: "Set the printed structure"
     target: "SYS_FLAG_OUTPUT"
+
+  - long: output-prop
+    about: "Select which properties are output"
+    target: "SYS_FLAG_OUTPUT_PROP"
+    multiple: true

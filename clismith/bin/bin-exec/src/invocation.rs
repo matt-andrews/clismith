@@ -16,6 +16,7 @@ pub enum Value {
 pub const SYS_FLAG_VERBOSE: &str = "SYS_FLAG_VERBOSE";
 pub const SYS_FLAG_OUTPUT: &str = "SYS_FLAG_OUTPUT";
 pub const SYS_FLAG_HEAD: &str = "SYS_FLAG_HEAD";
+pub const SYS_FLAG_OUTPUT_PROP: &str = "SYS_FLAG_OUTPUT_PROP";
 
 #[derive(Debug, Clone)]
 pub struct Invocation {
@@ -48,6 +49,20 @@ impl Invocation {
 
     pub fn flag(&self, name: &str) -> bool {
         matches!(self.params.get(name), Some(Value::Bool(true)))
+    }
+
+    pub fn output_props(&self) -> Option<Vec<String>> {
+        match self.params.get(SYS_FLAG_OUTPUT_PROP) {
+            Some(Value::List(vs)) => Some(
+                vs.iter()
+                    .filter_map(|m| match m {
+                        Value::Str(s) => Some(s.to_owned()),
+                        _ => None,
+                    })
+                    .collect(),
+            ),
+            _ => None,
+        }
     }
 
     /* pub fn list(&self, name: &str) -> &[Value] {
