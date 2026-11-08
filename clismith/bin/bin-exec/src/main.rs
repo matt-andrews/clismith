@@ -1,5 +1,6 @@
 use std::{collections::BTreeMap, path::PathBuf, process};
 
+use cr_core::helpers::env_or;
 use cr_outputs::{AnyOutput, OutputShape, output_for};
 use cr_req_dispatch::{
     http_dispatch,
@@ -15,7 +16,10 @@ mod tree;
 
 #[tokio::main]
 async fn main() -> process::ExitCode {
-    let build_path = PathBuf::from("./");
+    let build_path = PathBuf::from(env_or(
+        "PROJECT_LOCATION",
+        "../examples/billing_api/openapi/target",
+    ));
     let tree = CommandTree::from_yaml(&build_path);
 
     if let Err(e) = tree {
@@ -37,11 +41,25 @@ async fn dispatch(inv: &Invocation) -> ExitCode {
     }
 
     match http_dispatch(HttpRequestMessage {
-        base_uri: "http://localhost:5080".to_string(),
-        route: inv.triggered_command.clone().unwrap().route.unwrap(),
-        body: None,
-        headers: BTreeMap::new(),
-        method: HttpMethod::Get,
+        base_uri: inv.base_uri.clone(),
+        route: inv.triggered_command.clone().route.unwrap(),
+        body: None,               //TODO
+        headers: BTreeMap::new(), //TODO
+        method: match inv
+            .triggered_command
+            .clone()
+            .method
+            .unwrap_or("GET".to_string())
+            .to_uppercase()
+            .as_str()
+        {
+            "PUT" => HttpMethod::Put,
+            "POST" => HttpMethod::Post,
+            "PATCH" => HttpMethod::Patch,
+            "DELETE" => HttpMethod::Delete,
+            "OPTIONS" => HttpMethod::Options,
+            _ => HttpMethod::Get,
+        },
         verbose: inv.is_verbose(),
         output_type_headers: inv.is_head(),
     })

@@ -6,7 +6,7 @@ use std::{
 
 use clap::{Arg, ArgAction, ArgMatches, Command, builder::PossibleValuesParser, value_parser};
 use cr_core::{
-    helpers::deserialize_yaml_from_path,
+    helpers::deserialize_json_from_path,
     v1spec::{
         compiled::{
             core::CoreCompiled,
@@ -50,7 +50,7 @@ pub struct CommandTree {
     specs: Vec<CommandCompiled>,
     root: Node,
     clap: Command,
-    triggered_command_spec: Option<CommandCompiled>,
+    base_uri: Option<String>,
 }
 
 #[derive(Debug)]
@@ -62,8 +62,8 @@ pub struct Compilation {
 impl CommandTree {
     pub fn from_yaml(dir: &Path) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
         let config: Compilation = Compilation {
-            core: deserialize_yaml_from_path(dir, "core.yml")?,
-            module: deserialize_yaml_from_path(dir, "billing-module.yml")?,
+            core: deserialize_json_from_path(dir, "core.json")?,
+            module: deserialize_json_from_path(dir, "billing.json")?,
         };
         Ok(Self::compile(config)?)
     }
@@ -77,7 +77,6 @@ impl CommandTree {
         let mut root = Node::default();
         let mut seen: HashMap<Vec<String>, usize> = HashMap::new();
         let mut paths: Vec<String> = Vec::with_capacity(config.module.commands.len());
-        let mut triggered_spec: Option<CommandCompiled> = None;
 
         for (index, spec) in config.module.commands.iter().enumerate() {
             let desc = spec.describe();
@@ -180,7 +179,6 @@ impl CommandTree {
             node.leaf = Some(index);
             seen.insert(words, index);
             paths.push(joined);
-            triggered_spec = Some(spec.clone());
         }
 
         let mut tree = Self {
@@ -189,7 +187,7 @@ impl CommandTree {
             specs: config.module.commands,
             root,
             clap: Command::new(""),
-            triggered_command_spec: triggered_spec,
+            base_uri: config.module.base_uri,
         };
         tree.clap = tree.build_clap(&config.core.name, config.core.about.as_deref());
         Ok(tree)
@@ -238,7 +236,8 @@ impl CommandTree {
             path,
             bindings: spec.bindings.clone(),
             params,
-            triggered_command: self.triggered_command_spec.clone(),
+            triggered_command: spec.to_owned(),
+            base_uri: self.base_uri.clone().unwrap_or_default(),
         })
     }
 

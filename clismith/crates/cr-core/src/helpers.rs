@@ -7,7 +7,7 @@ use std::{
 
 use noyalib::compat::serde_yaml;
 use regex::Regex;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 pub fn get_file(dir: &Path, file: &str) -> Result<String, Error> {
     let src = std::fs::read_to_string(dir.join(file));
@@ -40,6 +40,14 @@ pub fn deserialize_yaml_from_path<T: for<'de> serde_core::de::Deserialize<'de> +
     }
 
     serde_yaml::from_str(&src.unwrap())
+}
+
+pub fn deserialize_json_from_path<T: for<'de> serde_core::de::Deserialize<'de> + 'static>(
+    dir: &Path,
+    file: &str,
+) -> std::result::Result<T, serde_json::Error> {
+    let src = get_file(dir, file);
+    serde_json::from_str(&src.unwrap_or_else(|_| panic!("failed to deserialize")))
 }
 
 pub fn serialize_to_json<T>(obj: &T, output: &Path) -> anyhow::Result<()>

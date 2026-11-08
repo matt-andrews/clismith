@@ -22,7 +22,8 @@ pub struct Invocation {
     pub path: Vec<String>,
     pub bindings: BTreeMap<String, String>,
     pub params: BTreeMap<String, Value>,
-    pub triggered_command: Option<CommandCompiled>,
+    pub triggered_command: CommandCompiled,
+    pub base_uri: String,
 }
 
 impl Invocation {
