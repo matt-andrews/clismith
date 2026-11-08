@@ -82,14 +82,34 @@ fn route_resolver(inv: &Invocation) -> String {
     //
     let mut result = inv.triggered_command.clone().route.unwrap_or_default();
 
-    for param in inv
+    for route_param in inv
         .triggered_command
         .args
         .iter()
         .filter(|f| f.param_where == ParamWhere::Route)
     {
-        let pattern = &format!("{{{}}}", param.target.clone().unwrap_or_default());
-        result = result.replace(pattern, inv.str(&param.long).unwrap_or_default())
+        let pattern = &format!("{{{}}}", route_param.target.clone().unwrap_or_default());
+        result = result.replace(pattern, inv.str(&route_param.long).unwrap_or_default());
+    }
+
+    let mut qry: String = String::new();
+
+    for qry_param in inv
+        .triggered_command
+        .args
+        .iter()
+        .filter(|f| f.param_where == ParamWhere::Query)
+    {
+        qry = format!(
+            "{}&{}={}",
+            qry,
+            qry_param.long,
+            inv.str(&qry_param.long).unwrap_or_default()
+        );
+    }
+
+    if !qry.is_empty() {
+        result = format!("{}?{}", result, qry.trim_start_matches('&'));
     }
 
     result
