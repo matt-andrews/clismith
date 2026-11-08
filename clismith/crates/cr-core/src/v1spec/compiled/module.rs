@@ -1,8 +1,10 @@
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 use std::collections::BTreeMap;
 
 use crate::v1spec::compiled::param::ParamCompiled;
 
+#[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ModuleCompiled {
     pub name: String,
@@ -10,6 +12,7 @@ pub struct ModuleCompiled {
     pub commands: Vec<CommandCompiled>,
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct CommandCompiled {
     #[serde(default)]
@@ -24,16 +27,8 @@ pub struct CommandCompiled {
     pub args: Vec<ParamCompiled>,
     #[serde(default)]
     pub flags: Vec<ParamCompiled>,
-    #[serde(default)]
-    pub result: Option<SchemaRef>,
     #[serde(flatten)]
     pub bindings: BTreeMap<String, String>,
-}
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct SchemaRef {
-    #[serde(rename = "$ref")]
-    pub reference: String,
 }
 
 impl CommandCompiled {

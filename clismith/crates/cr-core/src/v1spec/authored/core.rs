@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use serde::{Deserialize, Serialize};
 
 use crate::v1spec::{
@@ -10,6 +12,10 @@ pub struct CoreSpec {
     pub name: String,
     pub about: Option<String>,
     pub grammar: Grammar,
+    pub modules: Vec<PathBuf>,
+
+    #[serde(default)]
+    pub is_singleton: Option<bool>,
 
     #[serde(default)]
     pub global_flags: Vec<ParamSpec>,

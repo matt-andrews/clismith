@@ -7,3 +7,6 @@ edition = "2024"
 cr-core = { workspace = true }
 
 anyhow = { workspace = true }
+
+oas3 = { version = "0", features = ["yaml-spec"] }
+serde = { workspace = true }

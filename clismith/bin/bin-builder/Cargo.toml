@@ -13,3 +13,4 @@ cr-core = { workspace = true }
 
 anyhow = { workspace = true }
 clap = { workspace = true }
+dunce = { version = "1.0.5" }

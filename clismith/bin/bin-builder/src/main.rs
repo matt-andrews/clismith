@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand};
 use cr_compiler::compile;
-use std::{path::PathBuf, process::ExitCode};
+use std::{env, path::PathBuf, process::ExitCode};
 
 #[derive(Parser)]
 struct Cli {
@@ -26,6 +26,7 @@ fn main() -> anyhow::Result<ExitCode> {
             Ok(ExitCode::SUCCESS)
         }
         Commands::Build { src, target } => {
+            //TODO: check for target dir and create if not exist
             compile(&src, &target)?;
             Ok(ExitCode::SUCCESS)
         }

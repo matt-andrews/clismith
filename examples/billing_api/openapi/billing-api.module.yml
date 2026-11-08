@@ -1,0 +1,2 @@
+name: billing
+openapi_spec: billing-api.yaml

@@ -1,12 +1,16 @@
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, path::PathBuf};
 
 use crate::v1spec::{authored::param::ParamSpec, compiled};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ModuleSpec {
     pub name: String,
+    #[serde(default)]
+    pub openapi_spec: Option<PathBuf>,
+    #[serde(default)]
     pub about: Option<String>,
+    #[serde(default)]
     pub commands: Vec<CommandSpec>,
 }
 
@@ -70,7 +74,6 @@ impl CommandSpec {
                 .into_iter()
                 .map(|m| m.to_compiled())
                 .collect(),
-            result: self.result.clone().map(|m| m.to_compiled()),
             bindings: self.bindings.clone(),
         }
     }
@@ -80,13 +83,5 @@ impl CommandSpec {
             .map(|(k, v)| format!("{k}={v}"))
             .collect::<Vec<_>>()
             .join(" ")
-    }
-}
-
-impl SchemaRef {
-    pub fn to_compiled(&self) -> compiled::module::SchemaRef {
-        compiled::module::SchemaRef {
-            reference: self.reference.to_string(),
-        }
     }
 }

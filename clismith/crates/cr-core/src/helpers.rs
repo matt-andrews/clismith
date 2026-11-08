@@ -1,14 +1,16 @@
-use std::{env, fs::File, io::BufWriter, path::Path};
+use std::{
+    env,
+    fs::File,
+    io::{BufWriter, Error},
+    path::Path,
+};
 
 use noyalib::compat::serde_yaml;
 use regex::Regex;
 use serde::Serialize;
 
-pub fn deserialize_yaml_from_path<T: for<'de> serde_core::de::Deserialize<'de> + 'static>(
-    dir: &Path,
-    file: &str,
-) -> std::result::Result<T, noyalib::compat::serde_yaml::Error> {
-    let src = std::fs::read_to_string(format!("{}/{}", dir.display(), file));
+pub fn get_file(dir: &Path, file: &str) -> Result<String, Error> {
+    let src = std::fs::read_to_string(dir.join(file));
     if let Err(e) = src {
         eprintln!(
             "{}",
@@ -19,6 +21,19 @@ pub fn deserialize_yaml_from_path<T: for<'de> serde_core::de::Deserialize<'de> +
                 e.to_string()
             )
         );
+        return Err(e);
+    }
+
+    Ok(src.unwrap())
+}
+
+pub fn deserialize_yaml_from_path<T: for<'de> serde_core::de::Deserialize<'de> + 'static>(
+    dir: &Path,
+    file: &str,
+) -> std::result::Result<T, noyalib::compat::serde_yaml::Error> {
+    let src = get_file(dir, file);
+
+    if src.is_err() {
         return Err(noyalib::compat::serde_yaml::Error::from(
             noyalib::Error::Deserialize("failed to deserialize".to_string()),
         ));

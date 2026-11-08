@@ -10,6 +10,10 @@ grammar:
   verbs:
     - { method: GET, target: item, verb: get }
     - { method: GET, target: collection, verb: list }
+    - { method: POST, target: item, verb: create }
+
+modules:
+  - ./billing-module.yml
 
 global_flags:
   - long: verbose
@@ -26,7 +30,7 @@ global_flags:
 
   - long: output
     short: o
-    values: [json, table, none]
+    choices: [json, table, none]
     default: json
     about: "Set the printed structure"
     target: "SYS_OUTPUT"
