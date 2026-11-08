@@ -1,0 +1,11 @@
+{
+  "name": "test",
+  "core": "core.json",
+  "modules": [
+    {
+      "name": "billing",
+      "version": "1.0.0",
+      "target": "billing.json"
+    }
+  ]
+}

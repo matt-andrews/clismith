@@ -6,7 +6,7 @@ use std::{
 
 use clap::{Arg, ArgAction, ArgMatches, Command, builder::PossibleValuesParser, value_parser};
 use cr_core::{
-    helpers::deserialize_json_from_path,
+    helpers::{deserialize_json_from_path, env_or},
     v1spec::{
         compiled::{
             core::CoreCompiled,
@@ -20,6 +20,7 @@ use cr_core::{
 use crate::{
     errors::BuildError,
     invocation::{Invocation, Value},
+    manifest::Manifest,
     pattern::{Pattern, Segment},
 };
 
@@ -61,9 +62,15 @@ pub struct Compilation {
 
 impl CommandTree {
     pub fn from_yaml(dir: &Path) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
+        let manifest: Manifest =
+            deserialize_json_from_path(dir, &env_or("MANIFEST_NAME", "manifest.json"))?;
+        let manifest_module = manifest
+            .latest_module(&get_module_name())
+            .unwrap_or_else(|| panic!("module not found"));
+
         let config: Compilation = Compilation {
-            core: deserialize_json_from_path(dir, "core.json")?,
-            module: deserialize_json_from_path(dir, "billing.json")?,
+            core: deserialize_json_from_path(dir, &manifest.core)?,
+            module: deserialize_json_from_path(dir, &manifest_module.target)?,
         };
         Ok(Self::compile(config)?)
     }
@@ -459,4 +466,14 @@ fn extract(p: &ParamCompiled, m: &ArgMatches) -> Option<Value> {
         ValueKind::Path => grab(m, n, p.multiple, Value::Path),
         ValueKind::String => grab(m, n, p.multiple, Value::Str),
     }
+}
+
+fn get_module_name() -> String {
+    let mut args = std::env::args_os();
+    args.next();
+    args.next()
+        .unwrap_or_else(|| panic!("failed to identify module"))
+        .to_str()
+        .unwrap()
+        .to_string()
 }

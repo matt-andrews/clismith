@@ -137,6 +137,7 @@ dependencies = [
  "cr-outputs",
  "cr-req-dispatch",
  "noyalib",
+ "semver",
  "serde",
  "serde_json",
  "thiserror",

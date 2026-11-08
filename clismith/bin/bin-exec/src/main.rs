@@ -1,20 +1,17 @@
 use std::{collections::BTreeMap, path::PathBuf, process};
 
-use cr_core::{
-    helpers::env_or,
-    v1spec::{compiled::param::ParamCompiled, param_where::ParamWhere},
-};
+use cr_core::{helpers::env_or, v1spec::param_where::ParamWhere};
 use cr_outputs::{AnyOutput, OutputShape, output_for};
 use cr_req_dispatch::{
     http_dispatch,
     request::{HttpMethod, HttpRequestMessage},
 };
-use noyalib::cst::format;
 
 use crate::{invocation::Invocation, tree::CommandTree};
 
 mod errors;
 mod invocation;
+mod manifest;
 mod pattern;
 mod tree;
 

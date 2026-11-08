@@ -7,7 +7,7 @@ use std::{
 
 use noyalib::compat::serde_yaml;
 use regex::Regex;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 pub fn get_file(dir: &Path, file: &str) -> Result<String, Error> {
     let src = std::fs::read_to_string(dir.join(file));
