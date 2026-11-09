@@ -30,6 +30,8 @@ pub struct ParamCompiled {
     pub target: Option<String>,
     #[serde(default, rename = "where")]
     pub param_where: ParamWhere,
+    #[serde(default)]
+    pub allow_hyphen_values: Option<bool>,
 }
 
 impl Diff for ParamCompiled {
@@ -38,6 +40,20 @@ impl Diff for ParamCompiled {
         cmp_field(out, path, "short", &self.short, &new.short, Bump::Major);
         cmp_field(out, path, "about", &self.about, &new.about, Bump::Minor);
         cmp_field(out, path, "kind", &self.kind, &new.kind, Bump::Major);
+        cmp_field_with(
+            out,
+            path,
+            "allow_hyphen_values",
+            &self.allow_hyphen_values,
+            &new.allow_hyphen_values,
+            |_, &now| {
+                if now.unwrap_or_default() {
+                    Bump::Minor
+                } else {
+                    Bump::Major
+                }
+            },
+        );
         cmp_field_with(
             out,
             path,

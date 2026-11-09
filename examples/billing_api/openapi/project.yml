@@ -39,3 +39,9 @@ global_flags:
     about: "Select which properties are output"
     target: "SYS_FLAG_OUTPUT_PROP"
     multiple: true
+
+  - long: output-sort
+    about: "Sort output by given property. Prefix the property with `-` for descending"
+    target: "SYS_FLAG_OUTPUT_SORT"
+    multiple: true
+    allow_hyphen_values: true

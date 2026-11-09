@@ -24,6 +24,8 @@ pub struct ParamSpec {
     pub target: Option<String>,
     #[serde(default, rename = "where")]
     pub param_where: ParamWhere,
+    #[serde(default)]
+    pub allow_hyphen_values: Option<bool>,
 }
 
 impl ParamSpec {
@@ -39,6 +41,7 @@ impl ParamSpec {
             choices: self.choices.clone(),
             target: self.target.clone(),
             param_where: self.param_where,
+            allow_hyphen_values: self.allow_hyphen_values,
         }
     }
 }

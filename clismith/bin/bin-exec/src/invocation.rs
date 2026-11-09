@@ -17,6 +17,7 @@ pub const SYS_FLAG_VERBOSE: &str = "SYS_FLAG_VERBOSE";
 pub const SYS_FLAG_OUTPUT: &str = "SYS_FLAG_OUTPUT";
 pub const SYS_FLAG_HEAD: &str = "SYS_FLAG_HEAD";
 pub const SYS_FLAG_OUTPUT_PROP: &str = "SYS_FLAG_OUTPUT_PROP";
+pub const SYS_FLAG_OUTPUT_SORT: &str = "SYS_FLAG_OUTPUT_SORT";
 
 #[derive(Debug, Clone)]
 pub struct Invocation {
@@ -51,8 +52,8 @@ impl Invocation {
         matches!(self.params.get(name), Some(Value::Bool(true)))
     }
 
-    pub fn output_props(&self) -> Option<Vec<String>> {
-        match self.params.get(SYS_FLAG_OUTPUT_PROP) {
+    pub fn list(&self, name: &str) -> Option<Vec<String>> {
+        match self.params.get(name) {
             Some(Value::List(vs)) => Some(
                 vs.iter()
                     .filter_map(|m| match m {

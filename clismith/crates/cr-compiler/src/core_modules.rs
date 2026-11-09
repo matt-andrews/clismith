@@ -40,6 +40,7 @@ fn sys_manifest() -> ModuleSpec {
                 multiple: false,
                 param_where: ParamWhere::Query,
                 required: false,
+                allow_hyphen_values: None,
             }],
             flags: Vec::new(),
             bindings: BTreeMap::from([

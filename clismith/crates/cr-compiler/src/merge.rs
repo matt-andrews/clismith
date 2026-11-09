@@ -96,7 +96,8 @@ fn merge_module(project: &CoreSpec, module: &ModuleSpec, spec: Option<&Spec>) ->
                                     oas3::spec::ParameterIn::Query => ParamWhere::Query,
                                     oas3::spec::ParameterIn::Header => ParamWhere::Header,
                                     oas3::spec::ParameterIn::Cookie => ParamWhere::Cookie,
-                                }
+                                },
+                                allow_hyphen_values: None
                             }),
                             Err(_) => None,
                         })

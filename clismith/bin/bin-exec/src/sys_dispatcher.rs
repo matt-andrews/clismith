@@ -37,6 +37,7 @@ fn list_manifest(inv: &Invocation, dir: &Path) -> Option<Value> {
             .filter(|f| f.name == module_filter)
             .map(|m| m.to_display_module())
             .collect();
+
         to_value(mods).ok()
     } else {
         //

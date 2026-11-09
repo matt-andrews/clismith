@@ -10,15 +10,17 @@ use cr_req_dispatch::{
     http_dispatch,
     request::{HttpMethod, HttpRequestMessage},
 };
-use serde_json::Value;
 
-use crate::{exit_code::ExitCode, invocation::Invocation, tree::CommandTree};
+use crate::{
+    exit_code::ExitCode, invocation::Invocation, preprocessor::result_preprocess, tree::CommandTree,
+};
 
 mod errors;
 mod exit_code;
 mod invocation;
 mod manifest;
 mod pattern;
+mod preprocessor;
 mod sys_dispatcher;
 mod tree;
 mod utils;
@@ -52,7 +54,7 @@ async fn dispatch(inv: &Invocation, dir: &Path) -> ExitCode {
     if let Some(sys_dispatch) = sys_dispatcher::dispatch(inv, dir) {
         let output_printer: AnyOutput = output_for(inv.get_output().unwrap_or_default());
         let mut output = sys_dispatch;
-        filter_output(&mut output, inv.output_props());
+        result_preprocess(&mut output, inv);
         output_printer.print_output(output);
         return ExitCode::Success;
     }
@@ -85,7 +87,7 @@ async fn dispatch(inv: &Invocation, dir: &Path) -> ExitCode {
         Ok(result) => {
             let output_printer: AnyOutput = output_for(inv.get_output().unwrap_or_default());
             let mut output = result.content;
-            filter_output(&mut output, inv.output_props());
+            result_preprocess(&mut output, inv);
             output_printer.print_output(output);
             ExitCode::Success
         }
@@ -132,20 +134,4 @@ fn route_resolver(inv: &Invocation) -> String {
 
 fn get_exit(exit: ExitCode) -> process::ExitCode {
     process::ExitCode::from(exit as u8)
-}
-
-fn filter_output(output: &mut Value, props: Option<Vec<String>>) {
-    if let Some(props) = props {
-        select_fields(output, &props);
-    }
-}
-
-fn select_fields(value: &mut Value, fields: &[String]) {
-    match value {
-        Value::Object(map) => map.retain(|key, _| fields.iter().any(|f| f == key)),
-        Value::Array(items) => items
-            .iter_mut()
-            .for_each(|item| select_fields(item, fields)),
-        _ => {}
-    }
 }

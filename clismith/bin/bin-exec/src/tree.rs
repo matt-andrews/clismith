@@ -410,6 +410,11 @@ fn validate_params(
 
 fn to_arg(p: &ParamCompiled, positional: bool) -> Arg {
     let mut a = Arg::new(p.long.clone());
+
+    if p.allow_hyphen_values.unwrap_or_default() {
+        a = a.allow_hyphen_values(true);
+    }
+
     if let Some(h) = &p.about {
         a = a.help(h.clone());
     }
