@@ -55,6 +55,8 @@ fn emit_project(project: &CoreSpec, target_dir: &Path, index: &mut Index) -> any
             version.patch = 0;
         } else if bump == Bump::Patch {
             version.patch += 1;
+        } else {
+            return Ok(());
         }
         let module_file_name = format!("{}.v{}.json", module_name, version);
         index.core = module_file_name.clone();
@@ -128,6 +130,8 @@ pub fn emit_module(
             version.patch = 0;
         } else if bump == Bump::Patch {
             version.patch += 1;
+        } else {
+            return Ok(());
         }
         let module_file_name = format!("{}.v{}.json", module_name, version);
         let index_module = IndexModule {
