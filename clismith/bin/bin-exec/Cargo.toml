@@ -15,7 +15,7 @@ cr-req-dispatch = { workspace = true }
 anyhow = { workspace = true }
 clap = { workspace = true }
 noyalib = { workspace = true }
-semver = { version = "1" }
+semver = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }

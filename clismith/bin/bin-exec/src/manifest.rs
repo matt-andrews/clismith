@@ -12,15 +12,20 @@ pub struct Manifest {
 pub struct ManifestModule {
     pub name: String,
     pub version: String,
+    pub sha256: String,
     pub target: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 pub struct ManifestDisplayModule {
     #[serde(rename = "module")]
     pub name: String,
     #[serde(rename = "version")]
     pub version: String,
+    #[serde(rename = "hash")]
+    pub sha256: String,
+    #[serde(rename = "target")]
+    pub target: String,
 }
 
 impl Manifest {
@@ -40,6 +45,8 @@ impl ManifestModule {
         ManifestDisplayModule {
             name: self.name.clone(),
             version: self.version.clone(),
+            sha256: self.sha256.clone(),
+            target: self.target.clone(),
         }
     }
 }

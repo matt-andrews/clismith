@@ -1,23 +1,28 @@
 use std::{collections::BTreeMap, fs, path::Path};
 
 use cr_core::{
-    helpers::{deserialize_yaml_from_path, env_or},
-    v1spec::authored::{core::CoreSpec, module::ModuleSpec},
+    helpers::{deserialize_json_from_path, deserialize_yaml_from_path, env_or},
+    v1spec::{
+        authored::{core::CoreSpec, module::ModuleSpec},
+        index::Index,
+    },
 };
 use oas3::Spec;
 
 use crate::models::LoadResponse;
 
-pub fn load(root_dir: &Path) -> anyhow::Result<LoadResponse> {
+pub fn load(root_dir: &Path, target_dir: &Path) -> anyhow::Result<LoadResponse> {
     let project: CoreSpec = load_project(root_dir)?;
     let modules: Vec<ModuleSpec> =
         load_all_modules(root_dir, &env_or("MODULE_SUFFIX", ".module.yml"))?;
     let oapi_specs: BTreeMap<String, Spec> = load_all_openapi_docs(root_dir, &modules);
+    let index = load_index(target_dir, &project.name.clone());
 
     Ok(LoadResponse {
         project,
         modules,
         oapi_specs,
+        index,
     })
 }
 
@@ -79,4 +84,20 @@ fn load_openapi_doc(root_dir: &Path, module: &ModuleSpec) -> Option<(String, Spe
     }
 
     None
+}
+
+fn load_index(target_dir: &Path, project_name: &str) -> Index {
+    match does_index_exist(target_dir) {
+        true => match deserialize_json_from_path(target_dir, "index.json") {
+            Ok(v) => v,
+            _ => Index::new(project_name, ""),
+        },
+        false => Index::new(project_name, ""),
+    }
+}
+
+fn does_index_exist(target_dir: &Path) -> bool {
+    let mut target = target_dir.to_path_buf();
+    target.push("index.json");
+    target.try_exists().unwrap_or_default()
 }

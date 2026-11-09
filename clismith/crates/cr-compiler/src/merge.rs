@@ -31,6 +31,7 @@ pub fn merge(context: &LoadResponse) -> anyhow::Result<MergeResponse> {
     Ok(MergeResponse {
         project: context.project.clone(),
         modules: merged_modules,
+        index: context.index.clone(),
     })
 }
 

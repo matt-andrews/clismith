@@ -1,13 +1,21 @@
+use noyalib::compat::serde_yaml;
+use regex::Regex;
+use serde::Serialize;
 use std::{
     env,
     fs::File,
     io::{BufWriter, Error},
     path::Path,
 };
+use thiserror::Error;
 
-use noyalib::compat::serde_yaml;
-use regex::Regex;
-use serde::Serialize;
+#[derive(Error, Debug)]
+pub enum AppError {
+    #[error("File reading error occured")]
+    IoError(std::io::Error),
+    #[error("Json serialization error occured")]
+    JsonError(serde_json::Error),
+}
 
 pub fn get_file(dir: &Path, file: &str) -> Result<String, Error> {
     let src = std::fs::read_to_string(dir.join(file));
@@ -45,9 +53,10 @@ pub fn deserialize_yaml_from_path<T: for<'de> serde_core::de::Deserialize<'de> +
 pub fn deserialize_json_from_path<T: for<'de> serde_core::de::Deserialize<'de> + 'static>(
     dir: &Path,
     file: &str,
-) -> std::result::Result<T, serde_json::Error> {
-    let src = get_file(dir, file);
-    serde_json::from_str(&src.unwrap_or_else(|_| panic!("failed to deserialize")))
+) -> std::result::Result<T, AppError> {
+    let src = get_file(dir, file).map_err(AppError::IoError)?;
+    let result = serde_json::from_str(&src).map_err(AppError::JsonError)?;
+    Ok(result)
 }
 
 pub fn serialize_to_json<T>(obj: &T, output: &Path) -> anyhow::Result<()>
