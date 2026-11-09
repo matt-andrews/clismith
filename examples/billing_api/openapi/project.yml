@@ -17,7 +17,7 @@ required_modules:
   - { module: billing, version: "*" }
 
 registries:
-  - index: "lfs://C:/Users/Matthew/source/repos/clismith/examples/billing_api/openapi/target/index.json"
+  - index: "lfs://../examples/billing_api/openapi/target/index.json"
     secure: false
 
 global_flags:

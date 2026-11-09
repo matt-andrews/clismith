@@ -41,7 +41,7 @@ async fn main() -> process::ExitCode {
     let build_path = get_project_dir();
 
     if let Err(err) = check_for_required_modules(&build_path).await {
-        eprintln!("{}", err);
+        eprintln!("failed to install required modules: {}", err);
         return get_exit(ExitCode::Failed);
     }
 
@@ -59,7 +59,7 @@ async fn main() -> process::ExitCode {
 
 async fn dispatch(inv: &Invocation, dir: &Path) -> ExitCode {
     if inv.is_verbose() {
-        eprintln!(
+        println!(
             "[parsed] path={:?}\n[parsed] bindings={:?}\n[parsed] params={:?}",
             inv.path, inv.bindings, inv.params
         );

@@ -48,7 +48,7 @@ pub async fn http_dispatch(req: HttpRequestMessage) -> Result<HttpResponseMessag
 
 fn log_if(req: &HttpRequestMessage, message: &str) {
     if req.verbose {
-        eprintln!("{}", message);
+        println!("{}", message);
     }
 }
 

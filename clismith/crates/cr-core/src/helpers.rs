@@ -21,7 +21,7 @@ pub fn get_file(dir: &Path, file: &str) -> Result<String, Error> {
     let src = std::fs::read_to_string(dir.join(file));
     if let Err(e) = src {
         eprintln!(
-            "{}",
+            "failed to get file: {}",
             format_args!(
                 "error: can't read {}/{}: {}",
                 dir.display(),

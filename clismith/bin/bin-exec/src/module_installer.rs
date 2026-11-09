@@ -27,7 +27,7 @@ pub async fn check_for_app_installer(app_dir: &Path) -> Option<()> {
         .to_string();
 
     if let Err(failed) = app_install(app_dir, &arg).await {
-        eprintln!("{}", failed);
+        eprintln!("failed to install app: {}", failed);
     }
 
     Some(())

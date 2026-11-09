@@ -1,3 +1,4 @@
 /.local
 /target
 **/target
+/examples/billing_api/openapi/app
