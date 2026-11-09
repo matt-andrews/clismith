@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 use serde::{Deserialize, Serialize};
 
 use crate::v1spec::{
@@ -12,10 +10,15 @@ pub struct CoreSpec {
     pub name: String,
     pub about: Option<String>,
     pub grammar: Grammar,
-    pub modules: Vec<PathBuf>,
+
+    #[serde(default)]
+    pub required_modules: Option<Vec<RequiredModule>>,
 
     #[serde(default)]
     pub is_singleton: Option<bool>,
+
+    #[serde(default)]
+    pub registries: Option<Vec<Registry>>,
 
     #[serde(default)]
     pub global_flags: Vec<ParamSpec>,
@@ -40,6 +43,18 @@ pub struct VerbDefinition {
     pub verb: String,
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct RequiredModule {
+    pub module: String,
+    pub version: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Registry {
+    pub index: String,
+    pub secure: bool,
+}
+
 impl CoreSpec {
     pub fn to_compiled(&self) -> CoreCompiled {
         CoreCompiled {
@@ -52,6 +67,22 @@ impl CoreSpec {
                 .into_iter()
                 .map(|m| m.to_compiled())
                 .collect(),
+            required_modules: Some(
+                self.required_modules
+                    .clone()
+                    .unwrap_or_default()
+                    .iter()
+                    .map(|m| m.to_compiled())
+                    .collect(),
+            ),
+            registries: Some(
+                self.registries
+                    .clone()
+                    .unwrap_or_default()
+                    .iter()
+                    .map(|m| m.to_compiled())
+                    .collect(),
+            ),
         }
     }
 }
@@ -85,6 +116,24 @@ impl VerbDefinition {
             method: self.method.to_string(),
             target: self.target.to_string(),
             verb: self.verb.to_string(),
+        }
+    }
+}
+
+impl RequiredModule {
+    pub fn to_compiled(&self) -> compiled::core::RequiredModule {
+        compiled::core::RequiredModule {
+            module: self.module.to_string(),
+            version: self.version.to_string(),
+        }
+    }
+}
+
+impl Registry {
+    pub fn to_compiled(&self) -> compiled::core::Registry {
+        compiled::core::Registry {
+            index: self.index.to_string(),
+            secure: self.secure,
         }
     }
 }

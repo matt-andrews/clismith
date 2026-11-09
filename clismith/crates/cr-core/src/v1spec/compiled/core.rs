@@ -3,7 +3,7 @@ use serde_with::skip_serializing_none;
 
 use crate::v1spec::{
     compiled::param::ParamCompiled,
-    diff::{Bump, Diff, cmp_field, diff_by_key},
+    diff::{Bump, Diff, cmp_field, diff_by_key, diff_opt_by_key},
 };
 
 #[skip_serializing_none]
@@ -12,6 +12,12 @@ pub struct CoreCompiled {
     pub name: String,
     pub about: Option<String>,
     pub grammar: Grammar,
+
+    #[serde(default)]
+    pub required_modules: Option<Vec<RequiredModule>>,
+
+    #[serde(default)]
+    pub registries: Option<Vec<Registry>>,
 
     #[serde(default)]
     pub global_flags: Vec<ParamCompiled>,
@@ -36,6 +42,18 @@ pub struct VerbDefinition {
     pub verb: String,
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct RequiredModule {
+    pub module: String,
+    pub version: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Registry {
+    pub index: String,
+    pub secure: bool,
+}
+
 impl Diff for CoreCompiled {
     fn diff(&self, new: &Self, path: &str, out: &mut Vec<crate::v1spec::diff::Change>) {
         cmp_field(out, path, "name", &self.name, &new.name, Bump::Major);
@@ -43,6 +61,22 @@ impl Diff for CoreCompiled {
 
         self.grammar
             .diff(&new.grammar, &format!("{path}.grammar"), out);
+
+        diff_opt_by_key(
+            &self.required_modules,
+            &new.required_modules,
+            &format!("{path}.required_modules"),
+            out,
+            |key| &key.module,
+        );
+
+        diff_opt_by_key(
+            &self.registries,
+            &new.registries,
+            &format!("{path}.registries"),
+            out,
+            |key| &key.index,
+        );
 
         diff_by_key(
             &self.global_flags,
@@ -89,5 +123,26 @@ impl Diff for VerbDefinition {
         cmp_field(out, path, "method", &self.method, &new.method, Bump::Major);
         cmp_field(out, path, "target", &self.target, &new.target, Bump::Major);
         cmp_field(out, path, "verb", &self.verb, &new.verb, Bump::Major);
+    }
+}
+
+impl Diff for RequiredModule {
+    fn diff(&self, new: &Self, path: &str, out: &mut Vec<crate::v1spec::diff::Change>) {
+        cmp_field(out, path, "module", &self.module, &new.module, Bump::Major);
+        cmp_field(
+            out,
+            path,
+            "version",
+            &self.version,
+            &new.version,
+            Bump::Major,
+        );
+    }
+}
+
+impl Diff for Registry {
+    fn diff(&self, new: &Self, path: &str, out: &mut Vec<crate::v1spec::diff::Change>) {
+        cmp_field(out, path, "index", &self.index, &new.index, Bump::Major);
+        cmp_field(out, path, "secure", &self.secure, &new.secure, Bump::Major);
     }
 }

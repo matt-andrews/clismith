@@ -12,8 +12,13 @@ grammar:
     - { method: GET, target: collection, verb: list }
     - { method: POST, target: item, verb: create }
 
-modules:
-  - ./billing-module.yml
+required_modules:
+  - { module: manifest, version: "*" }
+  - { module: billing, version: "*" }
+
+registries:
+  - index: "lfs://C:/Users/Matthew/source/repos/clismith/examples/billing_api/openapi/target/index.json"
+    secure: false
 
 global_flags:
   - long: verbose

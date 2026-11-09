@@ -5,6 +5,7 @@ members = [
     "bin/bin-exec",
     "crates/cr-compiler",
     "crates/cr-core",
+    "crates/cr-installer",
     "crates/cr-outputs",
     "crates/cr-req-dispatch",
 ]
@@ -12,6 +13,7 @@ members = [
 [workspace.dependencies]
 cr-compiler = { path = "crates/cr-compiler" }
 cr-core = { path = "crates/cr-core" }
+cr-installer = { path = "crates/cr-installer" }
 cr-outputs = { path = "crates/cr-outputs" }
 cr-req-dispatch = { path = "crates/cr-req-dispatch" }
 

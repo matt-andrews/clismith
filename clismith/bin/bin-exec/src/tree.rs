@@ -66,7 +66,7 @@ impl CommandTree {
         let manifest: Manifest = get_manifest(dir)?;
         let manifest_module = manifest
             .latest_module(&get_module_name())
-            .unwrap_or_else(|| panic!("module not found"));
+            .unwrap_or_else(|| panic!("module not found: {}", get_module_name()));
 
         let config: Compilation = Compilation {
             core: deserialize_json_from_path(dir, &manifest.core)?,

@@ -1,5 +1,6 @@
 use std::{
     collections::BTreeMap,
+    env,
     path::{Path, PathBuf},
     process,
 };
@@ -12,13 +13,18 @@ use cr_req_dispatch::{
 };
 
 use crate::{
-    exit_code::ExitCode, invocation::Invocation, preprocessor::result_preprocess, tree::CommandTree,
+    exit_code::ExitCode,
+    invocation::Invocation,
+    module_installer::{check_for_app_installer, check_for_required_modules},
+    preprocessor::result_preprocess,
+    tree::CommandTree,
 };
 
 mod errors;
 mod exit_code;
 mod invocation;
 mod manifest;
+mod module_installer;
 mod pattern;
 mod preprocessor;
 mod sys_dispatcher;
@@ -27,10 +33,18 @@ mod utils;
 
 #[tokio::main]
 async fn main() -> process::ExitCode {
-    let build_path = PathBuf::from(env_or(
-        "PROJECT_LOCATION",
-        "../examples/billing_api/openapi/target",
-    ));
+    //
+    if check_for_app_installer(&get_app_dir()).await.is_some() {
+        return get_exit(ExitCode::Success);
+    }
+
+    let build_path = get_project_dir();
+
+    if let Err(err) = check_for_required_modules(&build_path).await {
+        eprintln!("{}", err);
+        return get_exit(ExitCode::Failed);
+    }
+
     let tree = CommandTree::from_yaml(&build_path);
 
     if let Err(e) = tree {
@@ -134,4 +148,29 @@ fn route_resolver(inv: &Invocation) -> String {
 
 fn get_exit(exit: ExitCode) -> process::ExitCode {
     process::ExitCode::from(exit as u8)
+}
+
+fn get_app_dir() -> PathBuf {
+    let mut result = match env::var("PROJECT_LOCATION") {
+        Ok(v) => PathBuf::from(v),
+        _ => match dirs::config_dir() {
+            Some(config_dir) => config_dir,
+            None => PathBuf::from("./"),
+        },
+    };
+
+    result.push("clismith");
+    result
+}
+
+fn get_project_dir() -> PathBuf {
+    let mut result = get_app_dir();
+
+    result.push(get_project_name());
+
+    result
+}
+
+fn get_project_name() -> String {
+    env_or("PROJECT_NAME", "test")
 }
