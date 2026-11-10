@@ -3,6 +3,8 @@ use std::path::PathBuf;
 
 use cr_core::v1spec::module::CommandSpec;
 
+use crate::runtime::sys::{SYS_FLAG_HEAD, SYS_FLAG_OUTPUT, SYS_FLAG_VERBOSE};
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum Value {
     Str(String),
@@ -12,12 +14,6 @@ pub enum Value {
     Path(PathBuf),
     List(Vec<Value>),
 }
-
-pub const SYS_FLAG_VERBOSE: &str = "SYS_FLAG_VERBOSE";
-pub const SYS_FLAG_OUTPUT: &str = "SYS_FLAG_OUTPUT";
-pub const SYS_FLAG_HEAD: &str = "SYS_FLAG_HEAD";
-pub const SYS_FLAG_OUTPUT_PROP: &str = "SYS_FLAG_OUTPUT_PROP";
-pub const SYS_FLAG_OUTPUT_SORT: &str = "SYS_FLAG_OUTPUT_SORT";
 
 #[derive(Debug, Clone)]
 pub struct Invocation {

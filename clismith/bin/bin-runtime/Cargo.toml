@@ -4,12 +4,11 @@ version = "0.0.0"
 edition = "2024"
 
 [[bin]]
-name = "clismith-runtime"
+name = "clismith"
 path = "src/main.rs"
 
 [dependencies]
 cr-runtime = { workspace = true }
 
 anyhow = { workspace = true }
-clap = { workspace = true }
 tokio = { workspace = true }

@@ -42,6 +42,7 @@ impl ProtocolShape for FileProtocol {
     async fn download_app(&self) -> anyhow::Result<()> {
         let src = std::fs::read_to_string(self.loc.clone())?;
         let index: Index = serde_json::from_str(&src)?;
+
         let module = index
             .latest_module("core")
             .unwrap_or_else(|| panic!("cannot find specified module to install"));

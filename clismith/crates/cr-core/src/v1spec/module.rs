@@ -6,7 +6,7 @@ use crate::v1spec::{
     param::ParamSpec,
 };
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct ModuleSpec {
     pub name: String,
     #[serde(default = "vspec")]
@@ -21,7 +21,7 @@ pub struct ModuleSpec {
     pub commands: Vec<CommandSpec>,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct CommandSpec {
     #[serde(default)]
     pub about: Option<String>,
@@ -41,7 +41,7 @@ pub struct CommandSpec {
     pub bindings: BTreeMap<String, String>,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct SchemaRef {
     #[serde(rename = "$ref")]
     pub reference: String,

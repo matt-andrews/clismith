@@ -1,6 +1,6 @@
 use std::{collections::BTreeMap, process::ExitCode};
 
-use cr_core::v1spec::param_where::ParamWhere;
+use cr_core::v1spec::{core::CoreSpec, index::Index, param_where::ParamWhere};
 
 use crate::{
     outputs::{AnyOutput, OutputShape, output_for},
@@ -10,10 +10,11 @@ use crate::{
     },
     runtime::{
         invocation::Invocation,
-        module_installer::{check_for_app_installer, check_for_required_modules},
+        module_selector::{Selection, select, skeleton},
         preprocessor::result_preprocess,
-        sys_dispatcher,
+        sys::{module_installer::check_for_required_modules, sys_dispatcher},
         tree::CommandTree,
+        utils::{get_core, get_manifest},
     },
 };
 
@@ -24,25 +25,28 @@ mod runtime;
 
 pub async fn exec() -> anyhow::Result<ExitCode> {
     //
-    if check_for_app_installer().await.is_some() {
-        return Ok(ExitCode::SUCCESS);
-    }
-
     if let Err(err) = check_for_required_modules().await {
         eprintln!("failed to install required modules: {}", err);
         return Ok(ExitCode::FAILURE);
     }
 
-    let tree = CommandTree::from_yaml();
+    let manifest: Index = get_manifest()?;
+    let core: CoreSpec = get_core(&manifest)?;
 
-    if let Err(e) = tree {
-        eprintln!("error: invalid CLI config: {e}");
-        return Ok(ExitCode::FAILURE);
+    match select(skeleton(&core, &manifest)?).unwrap_or_else(|e| e.exit()) {
+        Selection::Module(name) => {
+            let tree = CommandTree::from_yaml(&name, &manifest, &core);
+
+            if let Err(e) = tree {
+                eprintln!("error: invalid CLI config: {e}");
+                return Ok(ExitCode::FAILURE);
+            }
+
+            let inv = tree.unwrap().parse().unwrap_or_else(|e| e.exit());
+
+            Ok(dispatch(&inv).await)
+        }
     }
-
-    let inv = tree.unwrap().parse().unwrap_or_else(|e| e.exit());
-
-    Ok(dispatch(&inv).await)
 }
 
 async fn dispatch(inv: &Invocation) -> ExitCode {
@@ -53,7 +57,7 @@ async fn dispatch(inv: &Invocation) -> ExitCode {
         );
     }
 
-    if let Some(sys_dispatch) = sys_dispatcher::dispatch(inv) {
+    if let Some(sys_dispatch) = sys_dispatcher::dispatch(inv).await {
         let output_printer: AnyOutput = output_for(inv.get_output().unwrap_or_default());
         let mut output = sys_dispatch;
         result_preprocess(&mut output, inv);

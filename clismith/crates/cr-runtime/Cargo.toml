@@ -4,6 +4,7 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
+cr-compiler = { workspace = true }
 cr-core = { workspace = true }
 
 anyhow = { workspace = true }

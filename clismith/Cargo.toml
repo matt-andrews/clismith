@@ -1,7 +1,6 @@
 [workspace]
 resolver = "3"
 members = [
-    "bin/bin-builder",
     "bin/bin-runtime",
     "crates/cr-compiler",
     "crates/cr-core",

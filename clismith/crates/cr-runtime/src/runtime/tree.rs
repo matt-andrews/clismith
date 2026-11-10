@@ -1,10 +1,9 @@
 use std::{
     collections::{BTreeMap, HashMap, HashSet},
     ffi::OsString,
-    path::PathBuf,
 };
 
-use clap::{Arg, ArgAction, ArgMatches, Command, builder::PossibleValuesParser, value_parser};
+use clap::{ArgMatches, Command};
 use cr_core::v1spec::{
     core::CoreSpec,
     index::Index,
@@ -17,7 +16,7 @@ use crate::runtime::{
     errors::BuildError,
     invocation::{Invocation, Value},
     pattern::{Pattern, Segment},
-    utils::{get_core, get_manifest, get_module},
+    utils::{get_module, param_to_arg},
 };
 
 #[derive(Debug, Default)]
@@ -57,14 +56,17 @@ pub struct Compilation {
 }
 
 impl CommandTree {
-    pub fn from_yaml() -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
-        let manifest: Index = get_manifest()?;
+    pub fn from_yaml(
+        module_name: &str,
+        manifest: &Index,
+        core: &CoreSpec,
+    ) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
         let manifest_module = manifest
-            .latest_module(&get_module_name())
-            .unwrap_or_else(|| panic!("module not found: {}", get_module_name()));
+            .latest_module(module_name)
+            .unwrap_or_else(|| panic!("specified module not found in manifest: {}", module_name));
 
         let config: Compilation = Compilation {
-            core: get_core(&manifest)?,
+            core: core.to_owned(),
             module: get_module(manifest_module)?,
         };
         Ok(Self::compile(config)?)
@@ -249,7 +251,7 @@ impl CommandTree {
             root = root.about(a.to_string());
         }
         for g in &self.globals {
-            root = root.arg(to_arg(g, false).global(true));
+            root = root.arg(param_to_arg(g, false).global(true));
         }
         self.build_level(root, &self.root)
     }
@@ -258,10 +260,10 @@ impl CommandTree {
         if let Some(index) = node.leaf {
             let spec = &self.specs[index];
             for a in &spec.args {
-                cmd = cmd.arg(to_arg(a, true));
+                cmd = cmd.arg(param_to_arg(a, true));
             }
             for f in &spec.flags {
-                cmd = cmd.arg(to_arg(f, false));
+                cmd = cmd.arg(param_to_arg(f, false));
             }
             return cmd;
         }
@@ -403,46 +405,6 @@ fn validate_params(
     Ok(())
 }
 
-fn to_arg(p: &ParamSpec, positional: bool) -> Arg {
-    let mut a = Arg::new(p.long.clone());
-
-    if p.allow_hyphen_values.unwrap_or_default() {
-        a = a.allow_hyphen_values(true);
-    }
-
-    if let Some(h) = &p.about {
-        a = a.help(h.clone());
-    }
-    if !positional {
-        a = a.long(p.long.clone());
-        if let Some(s) = p.short {
-            a = a.short(s);
-        }
-    }
-    if p.kind == ValueKind::Bool {
-        return a.action(ArgAction::SetTrue);
-    }
-
-    a = match (&p.choices, p.kind) {
-        (Some(c), _) => a.value_parser(PossibleValuesParser::new(c.clone())),
-        (None, ValueKind::Int) => a.value_parser(value_parser!(i64)),
-        (None, ValueKind::Float) => a.value_parser(value_parser!(f64)),
-        (None, ValueKind::Path) => a.value_parser(value_parser!(PathBuf)),
-        (None, _) => a.value_parser(value_parser!(String)),
-    };
-    a = match (p.multiple, positional) {
-        (true, true) => a.num_args(1..).action(ArgAction::Append),
-        (true, false) => a.action(ArgAction::Append),
-        (false, _) => a.action(ArgAction::Set),
-    };
-    if let Some(d) = &p.default {
-        a = a.default_value(d.clone());
-    }
-
-    let required = p.required && p.default.is_none();
-    a.required(required)
-}
-
 fn extract(p: &ParamSpec, m: &ArgMatches) -> Option<Value> {
     fn grab<T: Clone + Send + Sync + 'static>(
         m: &ArgMatches,
@@ -466,14 +428,4 @@ fn extract(p: &ParamSpec, m: &ArgMatches) -> Option<Value> {
         ValueKind::Path => grab(m, n, p.multiple, Value::Path),
         ValueKind::String => grab(m, n, p.multiple, Value::Str),
     }
-}
-
-fn get_module_name() -> String {
-    let mut args = std::env::args_os();
-    args.next();
-    args.next()
-        .unwrap_or_else(|| panic!("failed to identify module"))
-        .to_str()
-        .unwrap()
-        .to_string()
 }

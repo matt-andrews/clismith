@@ -1,37 +1,9 @@
 use cr_core::v1spec::{core::CoreSpec, index::Index};
 
 use crate::{
-    installer::{app_install, module_install},
+    installer::module_install,
     runtime::utils::{get_core, get_manifest},
 };
-
-pub async fn check_for_app_installer() -> Option<()> {
-    let mut args = std::env::args_os();
-    args.next();
-    let is_installer = args
-        .next()
-        .unwrap_or_else(|| panic!("failed to identify"))
-        .to_str()
-        .unwrap()
-        .to_string();
-
-    if is_installer != "app-install" {
-        return None;
-    }
-
-    let arg = args
-        .next()
-        .unwrap_or_else(|| panic!("no app installer was specified"))
-        .to_str()
-        .unwrap()
-        .to_string();
-
-    if let Err(failed) = app_install(&arg).await {
-        eprintln!("failed to install app: {}", failed);
-    }
-
-    Some(())
-}
 
 pub async fn check_for_required_modules() -> anyhow::Result<()> {
     //

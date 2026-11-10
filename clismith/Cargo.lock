@@ -118,22 +118,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ac07cdecf99051d9a5238b80f35af32cdeba5b336e55d957b318b50137e18da5"
 
 [[package]]
-name = "bin-builder"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "clap",
- "cr-compiler",
- "cr-core",
- "dunce",
-]
-
-[[package]]
 name = "bin-runtime"
 version = "0.0.0"
 dependencies = [
  "anyhow",
- "clap",
  "cr-runtime",
  "tokio",
 ]
@@ -390,6 +378,7 @@ dependencies = [
  "anyhow",
  "clap",
  "comfy-table",
+ "cr-compiler",
  "cr-core",
  "dirs",
  "enum_dispatch",

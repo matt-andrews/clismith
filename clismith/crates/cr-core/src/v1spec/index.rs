@@ -1,14 +1,14 @@
 use semver::Version;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct Index {
     pub name: String,
     pub core: String,
     pub modules: Vec<IndexModule>,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct IndexModule {
     pub name: String,
     pub version: String,

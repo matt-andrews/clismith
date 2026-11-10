@@ -40,7 +40,11 @@ pub fn get_dir_with(t: DirType, str: &str) -> PathBuf {
 }
 
 pub fn get_project_name() -> String {
-    env_or("PROJECT_NAME", "test")
+    env_or("PROJECT_NAME", "system")
+}
+
+pub fn project_is_system() -> bool {
+    get_project_name() == "system"
 }
 
 fn get_dir_as_env(t: DirType) -> PathBuf {

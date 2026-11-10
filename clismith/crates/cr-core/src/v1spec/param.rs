@@ -6,7 +6,7 @@ use crate::v1spec::{
     value_kind::ValueKind,
 };
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct ParamSpec {
     #[serde(alias = "name")]
     pub long: String,

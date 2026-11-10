@@ -5,7 +5,7 @@ use crate::v1spec::{
     param::ParamSpec,
 };
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct CoreSpec {
     pub name: String,
     #[serde(default = "vspec")]
@@ -26,14 +26,14 @@ pub struct CoreSpec {
     pub global_flags: Vec<ParamSpec>,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct Grammar {
     pub pattern: String,
     pub naming: Naming,
     pub verbs: Vec<VerbDefinition>,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct Naming {
     pub case: String,
 }
