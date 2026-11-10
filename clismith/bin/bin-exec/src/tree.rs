@@ -1,20 +1,17 @@
 use std::{
     collections::{BTreeMap, HashMap, HashSet},
     ffi::OsString,
-    path::{Path, PathBuf},
+    path::PathBuf,
 };
 
 use clap::{Arg, ArgAction, ArgMatches, Command, builder::PossibleValuesParser, value_parser};
-use cr_core::{
-    helpers::deserialize_json_from_path,
-    v1spec::{
-        compiled::{
-            core::CoreCompiled,
-            module::{CommandCompiled, ModuleCompiled},
-            param::ParamCompiled,
-        },
-        value_kind::ValueKind,
+use cr_core::v1spec::{
+    compiled::{
+        core::CoreCompiled,
+        module::{CommandCompiled, ModuleCompiled},
+        param::ParamCompiled,
     },
+    value_kind::ValueKind,
 };
 
 use crate::{
@@ -22,7 +19,7 @@ use crate::{
     invocation::{Invocation, Value},
     manifest::Manifest,
     pattern::{Pattern, Segment},
-    utils::get_manifest,
+    utils::{get_core, get_manifest, get_module},
 };
 
 #[derive(Debug, Default)]
@@ -62,15 +59,15 @@ pub struct Compilation {
 }
 
 impl CommandTree {
-    pub fn from_yaml(dir: &Path) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
-        let manifest: Manifest = get_manifest(dir)?;
+    pub fn from_yaml() -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
+        let manifest: Manifest = get_manifest()?;
         let manifest_module = manifest
             .latest_module(&get_module_name())
             .unwrap_or_else(|| panic!("module not found: {}", get_module_name()));
 
         let config: Compilation = Compilation {
-            core: deserialize_json_from_path(dir, &manifest.core)?,
-            module: deserialize_json_from_path(dir, &manifest_module.target)?,
+            core: get_core(&manifest)?,
+            module: get_module(manifest_module)?,
         };
         Ok(Self::compile(config)?)
     }

@@ -1,11 +1,12 @@
-use std::path::Path;
-
-use cr_core::{helpers::deserialize_json_from_path, v1spec::compiled::core::CoreCompiled};
+use cr_core::v1spec::compiled::core::CoreCompiled;
 use cr_installer::{app_install, module_install};
 
-use crate::manifest::Manifest;
+use crate::{
+    manifest::Manifest,
+    utils::{get_core, get_manifest},
+};
 
-pub async fn check_for_app_installer(app_dir: &Path) -> Option<()> {
+pub async fn check_for_app_installer() -> Option<()> {
     let mut args = std::env::args_os();
     args.next();
     let is_installer = args
@@ -26,29 +27,29 @@ pub async fn check_for_app_installer(app_dir: &Path) -> Option<()> {
         .unwrap()
         .to_string();
 
-    if let Err(failed) = app_install(app_dir, &arg).await {
+    if let Err(failed) = app_install(&arg).await {
         eprintln!("failed to install app: {}", failed);
     }
 
     Some(())
 }
 
-pub async fn check_for_required_modules(app_dir: &Path) -> anyhow::Result<()> {
+pub async fn check_for_required_modules() -> anyhow::Result<()> {
     //
-    let manifest: Manifest = deserialize_json_from_path(app_dir, "manifest.json")?;
-    let core: CoreCompiled = deserialize_json_from_path(app_dir, &manifest.core)?;
+    let manifest: Manifest = get_manifest()?;
+    let core: CoreCompiled = get_core(&manifest)?;
     for req in core.required_modules.unwrap_or_default() {
         if manifest.latest_module(&req.module).is_none() {
-            install_module(app_dir, &req.module).await?;
+            install_module(&req.module).await?;
         }
     }
 
     Ok(())
 }
 
-pub async fn install_module(app_dir: &Path, module_name: &str) -> anyhow::Result<()> {
-    let manifest: Manifest = deserialize_json_from_path(app_dir, "manifest.json")?;
-    let core: CoreCompiled = deserialize_json_from_path(app_dir, &manifest.core)?;
+pub async fn install_module(module_name: &str) -> anyhow::Result<()> {
+    let manifest: Manifest = get_manifest()?;
+    let core: CoreCompiled = get_core(&manifest)?;
     let registry = core
         .registries
         .unwrap_or_default()
@@ -56,7 +57,7 @@ pub async fn install_module(app_dir: &Path, module_name: &str) -> anyhow::Result
         .unwrap_or_else(|| panic!("cannot find a registry to download modules from"))
         .clone();
 
-    module_install(app_dir, registry.index.as_str(), module_name).await?;
+    module_install(registry.index.as_str(), module_name).await?;
 
     Ok(())
 }

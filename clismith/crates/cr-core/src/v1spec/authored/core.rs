@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::v1spec::{
-    authored::param::ParamSpec,
+    authored::{Compiled, param::ParamSpec},
     compiled::{self, core::CoreCompiled},
 };
 
@@ -55,8 +55,8 @@ pub struct Registry {
     pub secure: bool,
 }
 
-impl CoreSpec {
-    pub fn to_compiled(&self) -> CoreCompiled {
+impl Compiled<CoreCompiled> for CoreSpec {
+    fn to_compiled(&self) -> CoreCompiled {
         CoreCompiled {
             name: self.name.to_string(),
             about: self.about.clone(),
@@ -87,8 +87,8 @@ impl CoreSpec {
     }
 }
 
-impl Grammar {
-    pub fn to_compiled(&self) -> compiled::core::Grammar {
+impl Compiled<compiled::core::Grammar> for Grammar {
+    fn to_compiled(&self) -> compiled::core::Grammar {
         compiled::core::Grammar {
             pattern: self.pattern.to_string(),
             naming: self.naming.to_compiled(),
@@ -102,16 +102,16 @@ impl Grammar {
     }
 }
 
-impl Naming {
-    pub fn to_compiled(&self) -> compiled::core::Naming {
+impl Compiled<compiled::core::Naming> for Naming {
+    fn to_compiled(&self) -> compiled::core::Naming {
         compiled::core::Naming {
             case: self.case.to_string(),
         }
     }
 }
 
-impl VerbDefinition {
-    pub fn to_compiled(&self) -> compiled::core::VerbDefinition {
+impl Compiled<compiled::core::VerbDefinition> for VerbDefinition {
+    fn to_compiled(&self) -> compiled::core::VerbDefinition {
         compiled::core::VerbDefinition {
             method: self.method.to_string(),
             target: self.target.to_string(),
@@ -120,8 +120,8 @@ impl VerbDefinition {
     }
 }
 
-impl RequiredModule {
-    pub fn to_compiled(&self) -> compiled::core::RequiredModule {
+impl Compiled<compiled::core::RequiredModule> for RequiredModule {
+    fn to_compiled(&self) -> compiled::core::RequiredModule {
         compiled::core::RequiredModule {
             module: self.module.to_string(),
             version: self.version.to_string(),
@@ -129,8 +129,8 @@ impl RequiredModule {
     }
 }
 
-impl Registry {
-    pub fn to_compiled(&self) -> compiled::core::Registry {
+impl Compiled<compiled::core::Registry> for Registry {
+    fn to_compiled(&self) -> compiled::core::Registry {
         compiled::core::Registry {
             index: self.index.to_string(),
             secure: self.secure,

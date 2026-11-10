@@ -1,4 +1,4 @@
-use std::{collections::BTreeMap, path::Path};
+use std::collections::BTreeMap;
 
 use cr_core::{
     helpers::env_or,
@@ -14,9 +14,9 @@ use cr_core::{
 
 use crate::{emit::emit_module, models::MergeResponse};
 
-pub fn emit_core_modules(context: &mut MergeResponse, target_dir: &Path) -> anyhow::Result<()> {
+pub fn emit_core_modules(context: &mut MergeResponse) -> anyhow::Result<()> {
     //
-    emit_module(&sys_manifest(), target_dir, &mut context.index)?;
+    emit_module(&sys_manifest(), &mut context.index)?;
     Ok(())
 }
 

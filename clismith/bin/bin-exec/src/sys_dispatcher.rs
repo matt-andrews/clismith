@@ -1,4 +1,4 @@
-use std::{collections::HashMap, path::Path};
+use std::collections::HashMap;
 
 use serde_json::{Value, to_value};
 
@@ -10,7 +10,7 @@ use crate::{
 
 const SYS_CMD_MANIFEST_LIST: &str = "SYS_CMD_MANIFEST_LIST";
 
-pub fn dispatch(inv: &Invocation, dir: &Path) -> Option<Value> {
+pub fn dispatch(inv: &Invocation) -> Option<Value> {
     //
     match inv
         .triggered_command
@@ -19,14 +19,14 @@ pub fn dispatch(inv: &Invocation, dir: &Path) -> Option<Value> {
         .unwrap_or_default()
         .as_str()
     {
-        SYS_CMD_MANIFEST_LIST => list_manifest(inv, dir),
+        SYS_CMD_MANIFEST_LIST => list_manifest(inv),
         _ => None,
     }
 }
 
-fn list_manifest(inv: &Invocation, dir: &Path) -> Option<Value> {
+fn list_manifest(inv: &Invocation) -> Option<Value> {
     //
-    let manifest = get_manifest(dir).unwrap_or_else(|_| panic!("cannot find manifest"));
+    let manifest = get_manifest().unwrap_or_else(|_| panic!("cannot find manifest"));
     let module_filter = inv.str("module");
 
     if let Some(module_filter) = module_filter {

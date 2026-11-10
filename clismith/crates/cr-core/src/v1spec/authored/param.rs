@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::v1spec::{compiled, param_where::ParamWhere, value_kind::ValueKind};
+use crate::v1spec::{authored::Compiled, compiled, param_where::ParamWhere, value_kind::ValueKind};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ParamSpec {
@@ -28,8 +28,8 @@ pub struct ParamSpec {
     pub allow_hyphen_values: Option<bool>,
 }
 
-impl ParamSpec {
-    pub fn to_compiled(&self) -> compiled::param::ParamCompiled {
+impl Compiled<compiled::param::ParamCompiled> for ParamSpec {
+    fn to_compiled(&self) -> compiled::param::ParamCompiled {
         compiled::param::ParamCompiled {
             long: self.long.to_string(),
             short: self.short,

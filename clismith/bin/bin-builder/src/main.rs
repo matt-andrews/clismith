@@ -1,5 +1,6 @@
 use clap::{Parser, Subcommand};
 use cr_compiler::compile;
+use cr_core::dir_helpers::{DirType, set_dir};
 use std::{env, path::PathBuf, process::ExitCode};
 
 #[derive(Parser)]
@@ -11,10 +12,10 @@ struct Cli {
 enum Commands {
     Version,
     Build {
-        #[arg(short, long, default_value = "./")]
-        src: PathBuf,
-        #[arg(short, long, default_value = "./target")]
-        target: PathBuf,
+        #[arg(short, long)]
+        src: Option<PathBuf>,
+        #[arg(short, long)]
+        target: Option<PathBuf>,
     },
 }
 
@@ -26,8 +27,17 @@ fn main() -> anyhow::Result<ExitCode> {
             Ok(ExitCode::SUCCESS)
         }
         Commands::Build { src, target } => {
-            //TODO: check for target dir and create if not exist
-            compile(&src, &target)?;
+            //
+            if let Some(src) = src {
+                set_dir(DirType::Project, &src);
+            }
+
+            if let Some(target) = target {
+                set_dir(DirType::Target, &target);
+            }
+
+            compile()?;
+
             Ok(ExitCode::SUCCESS)
         }
     }

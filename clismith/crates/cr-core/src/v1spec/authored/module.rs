@@ -1,7 +1,10 @@
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, path::PathBuf};
 
-use crate::v1spec::{authored::param::ParamSpec, compiled};
+use crate::v1spec::{
+    authored::{Compiled, param::ParamSpec},
+    compiled,
+};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ModuleSpec {
@@ -42,8 +45,8 @@ pub struct SchemaRef {
     pub reference: String,
 }
 
-impl ModuleSpec {
-    pub fn to_compiled(&self) -> compiled::module::ModuleCompiled {
+impl Compiled<compiled::module::ModuleCompiled> for ModuleSpec {
+    fn to_compiled(&self) -> compiled::module::ModuleCompiled {
         compiled::module::ModuleCompiled {
             name: self.name.to_string(),
             about: self.about.clone(),
@@ -58,8 +61,8 @@ impl ModuleSpec {
     }
 }
 
-impl CommandSpec {
-    pub fn to_compiled(&self) -> compiled::module::CommandCompiled {
+impl Compiled<compiled::module::CommandCompiled> for CommandSpec {
+    fn to_compiled(&self) -> compiled::module::CommandCompiled {
         compiled::module::CommandCompiled {
             about: self.about.clone(),
             target: self.target.clone(),
@@ -80,6 +83,9 @@ impl CommandSpec {
             bindings: self.bindings.clone(),
         }
     }
+}
+
+impl CommandSpec {
     pub fn describe(&self) -> String {
         self.bindings
             .iter()

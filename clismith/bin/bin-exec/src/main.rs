@@ -1,11 +1,6 @@
-use std::{
-    collections::BTreeMap,
-    env,
-    path::{Path, PathBuf},
-    process,
-};
+use std::{collections::BTreeMap, process};
 
-use cr_core::{helpers::env_or, v1spec::param_where::ParamWhere};
+use cr_core::v1spec::param_where::ParamWhere;
 use cr_outputs::{AnyOutput, OutputShape, output_for};
 use cr_req_dispatch::{
     http_dispatch,
@@ -34,18 +29,16 @@ mod utils;
 #[tokio::main]
 async fn main() -> process::ExitCode {
     //
-    if check_for_app_installer(&get_app_dir()).await.is_some() {
+    if check_for_app_installer().await.is_some() {
         return get_exit(ExitCode::Success);
     }
 
-    let build_path = get_project_dir();
-
-    if let Err(err) = check_for_required_modules(&build_path).await {
+    if let Err(err) = check_for_required_modules().await {
         eprintln!("failed to install required modules: {}", err);
         return get_exit(ExitCode::Failed);
     }
 
-    let tree = CommandTree::from_yaml(&build_path);
+    let tree = CommandTree::from_yaml();
 
     if let Err(e) = tree {
         eprintln!("error: invalid CLI config: {e}");
@@ -54,10 +47,10 @@ async fn main() -> process::ExitCode {
 
     let inv = tree.unwrap().parse().unwrap_or_else(|e| e.exit());
 
-    get_exit(dispatch(&inv, &build_path).await)
+    get_exit(dispatch(&inv).await)
 }
 
-async fn dispatch(inv: &Invocation, dir: &Path) -> ExitCode {
+async fn dispatch(inv: &Invocation) -> ExitCode {
     if inv.is_verbose() {
         println!(
             "[parsed] path={:?}\n[parsed] bindings={:?}\n[parsed] params={:?}",
@@ -65,7 +58,7 @@ async fn dispatch(inv: &Invocation, dir: &Path) -> ExitCode {
         );
     }
 
-    if let Some(sys_dispatch) = sys_dispatcher::dispatch(inv, dir) {
+    if let Some(sys_dispatch) = sys_dispatcher::dispatch(inv) {
         let output_printer: AnyOutput = output_for(inv.get_output().unwrap_or_default());
         let mut output = sys_dispatch;
         result_preprocess(&mut output, inv);
@@ -148,29 +141,4 @@ fn route_resolver(inv: &Invocation) -> String {
 
 fn get_exit(exit: ExitCode) -> process::ExitCode {
     process::ExitCode::from(exit as u8)
-}
-
-fn get_app_dir() -> PathBuf {
-    let mut result = match env::var("PROJECT_LOCATION") {
-        Ok(v) => PathBuf::from(v),
-        _ => match dirs::config_dir() {
-            Some(config_dir) => config_dir,
-            None => PathBuf::from("./"),
-        },
-    };
-
-    result.push("clismith");
-    result
-}
-
-fn get_project_dir() -> PathBuf {
-    let mut result = get_app_dir();
-
-    result.push(get_project_name());
-
-    result
-}
-
-fn get_project_name() -> String {
-    env_or("PROJECT_NAME", "test")
 }

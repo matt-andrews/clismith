@@ -1,10 +1,11 @@
 use std::{
     fs::{self},
-    path::{Path, PathBuf},
+    path::PathBuf,
 };
 
 use cr_core::{
-    helpers::{deserialize_json_from_path, serialize_to_json},
+    dir_helpers::{DirType, get_dir, get_dir_with},
+    io_helpers::{deserialize_from_file, serialize_to_file},
     v1spec::index::{Index, IndexModule},
 };
 
@@ -15,7 +16,7 @@ pub struct FileProtocol {
 }
 
 impl ProtocolShape for FileProtocol {
-    async fn download_module(&self, module_name: &str, download_dir: &Path) -> anyhow::Result<()> {
+    async fn download_module(&self, module_name: &str) -> anyhow::Result<()> {
         let src = std::fs::read_to_string(self.loc.clone())?;
         let index: Index = serde_json::from_str(&src)?;
         let mut dir = PathBuf::from(self.loc.clone())
@@ -29,8 +30,8 @@ impl ProtocolShape for FileProtocol {
 
         let old = std::fs::read_to_string(dir)?;
 
-        let mut download_dir = download_dir.to_path_buf();
-        create_or_update_manifest(&download_dir, &index.name, module)?;
+        let mut download_dir = get_dir(DirType::Exec);
+        create_or_update_manifest(&index.name, module)?;
         download_dir.push(module.target.clone());
 
         fs::write(download_dir, old)?;
@@ -38,7 +39,7 @@ impl ProtocolShape for FileProtocol {
         Ok(())
     }
 
-    async fn download_app(&self, download_dir: &Path) -> anyhow::Result<()> {
+    async fn download_app(&self) -> anyhow::Result<()> {
         let src = std::fs::read_to_string(self.loc.clone())?;
         let index: Index = serde_json::from_str(&src)?;
         let module = index
@@ -53,10 +54,9 @@ impl ProtocolShape for FileProtocol {
 
         let old = std::fs::read_to_string(dir)?;
 
-        let mut download_dir = download_dir.to_path_buf();
-        download_dir.push(index.name.clone()); //app needs to add app name to dir
+        let mut download_dir = get_dir(DirType::Exec);
         fs::create_dir_all(download_dir.clone())?;
-        create_or_update_manifest(&download_dir, &index.name, module)?;
+        create_or_update_manifest(&index.name, module)?;
 
         download_dir.push(index.core.clone());
         fs::write(download_dir.clone(), old)?;
@@ -65,13 +65,9 @@ impl ProtocolShape for FileProtocol {
     }
 }
 
-fn create_or_update_manifest(
-    download_dir: &Path,
-    project_name: &str,
-    index_module: &IndexModule,
-) -> anyhow::Result<()> {
-    let mut manifest: Index = match does_manifest_exist(download_dir) {
-        true => match deserialize_json_from_path(download_dir, "manifest.json") {
+fn create_or_update_manifest(project_name: &str, index_module: &IndexModule) -> anyhow::Result<()> {
+    let mut manifest: Index = match does_manifest_exist() {
+        true => match deserialize_from_file(&get_dir_with(DirType::Exec, "manifest.json")) {
             Ok(v) => v,
             _ => Index::new(project_name, ""),
         },
@@ -82,14 +78,11 @@ fn create_or_update_manifest(
     }
     manifest.modules.push(index_module.clone());
 
-    let mut target = download_dir.to_path_buf();
-    target.push("manifest.json");
-    serialize_to_json(&manifest, &target)?;
+    serialize_to_file(&manifest, &get_dir_with(DirType::Exec, "manifest.json"))?;
     Ok(())
 }
 
-fn does_manifest_exist(download_dir: &Path) -> bool {
-    let mut target = download_dir.to_path_buf();
-    target.push("manifest.json");
+fn does_manifest_exist() -> bool {
+    let target = get_dir_with(DirType::Exec, "manifest.json");
     target.try_exists().unwrap_or_default()
 }

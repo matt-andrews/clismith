@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 anyhow = { workspace = true }
+dirs = { version = "7" }
 noyalib = { workspace = true }
 regex = { version = "1.13.1" }
 semver = { workspace = true }
