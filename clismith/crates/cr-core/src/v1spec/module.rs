@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 use std::{collections::BTreeMap, path::PathBuf};
 
 use crate::v1spec::{
@@ -6,6 +7,7 @@ use crate::v1spec::{
     param::ParamSpec,
 };
 
+#[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct ModuleSpec {
     pub name: String,
@@ -21,6 +23,7 @@ pub struct ModuleSpec {
     pub commands: Vec<CommandSpec>,
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct CommandSpec {
     #[serde(default)]
@@ -35,16 +38,8 @@ pub struct CommandSpec {
     pub args: Vec<ParamSpec>,
     #[serde(default)]
     pub flags: Vec<ParamSpec>,
-    #[serde(default)]
-    pub result: Option<SchemaRef>,
     #[serde(flatten)]
     pub bindings: BTreeMap<String, String>,
-}
-
-#[derive(Debug, Clone, Deserialize, Serialize, Default)]
-pub struct SchemaRef {
-    #[serde(rename = "$ref")]
-    pub reference: String,
 }
 
 impl CommandSpec {

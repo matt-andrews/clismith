@@ -51,7 +51,6 @@ fn merge_module(project: &CoreSpec, module: &ModuleSpec, spec: Option<&Spec>) ->
                     target: Some(path.to_string()),
                     route: Some(path.to_string()),
                     method: Some(method.to_string().to_uppercase()),
-                    result: None,
                     bindings: BTreeMap::from([
                         ("module".to_string(), module.name.clone()),
                         (

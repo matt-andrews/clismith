@@ -1,9 +1,14 @@
-use std::{collections::HashMap, path::PathBuf};
+use core::panic;
+use std::{collections::HashMap, fs, path::PathBuf};
 
 use cr_compiler::compile;
 use cr_core::{
     dir_helpers::{DirType, get_dir_with, set_dir},
-    v1spec::index::{IndexDisplayModule, IndexModule},
+    io_helpers::serialize_to_file,
+    v1spec::{
+        core::CoreSpec,
+        index::{IndexDisplayModule, IndexModule},
+    },
 };
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, to_value};
@@ -14,7 +19,7 @@ use crate::{
         invocation::Invocation,
         sys::{
             SYS_CMD_COMPILE_APP, SYS_CMD_COMPILE_VERSION, SYS_CMD_INSTALL_APP,
-            SYS_CMD_MANIFEST_LIST,
+            SYS_CMD_MANIFEST_LIST, SYS_CMD_PROJECT_INIT,
         },
         utils::get_manifest,
     },
@@ -38,6 +43,7 @@ pub async fn dispatch(inv: &Invocation) -> Option<Value> {
         SYS_CMD_INSTALL_APP => install_app(inv).await,
         SYS_CMD_COMPILE_APP => compile_app(inv),
         SYS_CMD_COMPILE_VERSION => compiler_version(inv),
+        SYS_CMD_PROJECT_INIT => project_init(inv),
         _ => None,
     }
 }
@@ -128,4 +134,42 @@ fn compiler_version(_: &Invocation) -> Option<Value> {
         })
         .unwrap_or_default(),
     )
+}
+
+fn project_init(inv: &Invocation) -> Option<Value> {
+    let name_arg = inv
+        .str("name")
+        .unwrap_or_else(|| panic!("name arg is required for project init"));
+    let about_arg = inv.str("about");
+
+    let src_arg = inv.str("src");
+    if let Some(src) = src_arg {
+        set_dir(DirType::Project, &PathBuf::from(src));
+    }
+
+    //TODO: instead of serializing a core spec, we should use real templates with
+    //liquid. That way we can add comments and better formatting
+    let result = CoreSpec::init_default_template(name_arg, about_arg.map(str::to_string));
+    let output = &get_dir_with(DirType::Project, "project.yml");
+    if let Ok(file_exists) = fs::exists(output)
+        && file_exists
+    {
+        panic!("A project file already exists at this location");
+    }
+
+    if let Err(er) = serialize_to_file(&result, output) {
+        Some(
+            serde_json::to_value(SimpleResult {
+                result: format!("Failed to initialize project: {}", er),
+            })
+            .unwrap_or_default(),
+        )
+    } else {
+        Some(
+            serde_json::to_value(SimpleResult {
+                result: "Project initialized".to_string(),
+            })
+            .unwrap_or_default(),
+        )
+    }
 }

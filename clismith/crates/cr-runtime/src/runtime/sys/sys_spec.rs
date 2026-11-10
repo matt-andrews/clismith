@@ -1,14 +1,15 @@
 use std::collections::BTreeMap;
 
 use cr_core::v1spec::{
-    core::{CoreSpec, Grammar, Naming},
+    core::CoreSpec,
     index::{Index, IndexModule},
     module::{CommandSpec, ModuleSpec},
     param::ParamSpec,
-    value_kind::ValueKind,
 };
 
-use crate::runtime::sys::{SYS_CMD_COMPILE_APP, SYS_CMD_COMPILE_VERSION, SYS_CMD_INSTALL_APP};
+use crate::runtime::sys::{
+    SYS_CMD_COMPILE_APP, SYS_CMD_COMPILE_VERSION, SYS_CMD_INSTALL_APP, SYS_CMD_PROJECT_INIT,
+};
 
 pub fn get_sys_manifest() -> Index {
     //
@@ -57,6 +58,39 @@ pub fn get_sys_module(module: &str) -> Option<ModuleSpec> {
                                 target: Some("target".to_string()),
                                 long: "target".to_string(),
                                 about: Some("The project target".to_string()),
+                                ..Default::default()
+                            },
+                        ],
+                        ..Default::default()
+                    },
+                    CommandSpec {
+                        target: Some(SYS_CMD_PROJECT_INIT.to_string()),
+                        about: Some(
+                            "Initialize a new project using opinionated defaults".to_string(),
+                        ),
+                        bindings: BTreeMap::from([
+                            ("verb".to_string(), "init".to_string()),
+                            ("resource".to_string(), "project".to_string()),
+                            ("module".to_string(), "compiler".to_string()),
+                        ]),
+                        args: vec![ParamSpec {
+                            target: Some("name".to_string()),
+                            long: "name".to_string(),
+                            about: Some("The name of the project".to_string()),
+                            required: true,
+                            ..Default::default()
+                        }],
+                        flags: vec![
+                            ParamSpec {
+                                target: Some("about".to_string()),
+                                long: "about".to_string(),
+                                about: Some("Pre-set the about section of the project".to_string()),
+                                ..Default::default()
+                            },
+                            ParamSpec {
+                                target: Some("src".to_string()),
+                                long: "src".to_string(),
+                                about: Some("The project location".to_string()),
                                 ..Default::default()
                             },
                         ],
@@ -118,66 +152,5 @@ pub fn get_sys_module(module: &str) -> Option<ModuleSpec> {
 
 pub fn get_sys_core() -> CoreSpec {
     //
-    CoreSpec {
-        name: "system".to_string(),
-        about: Some("Baked-in system commands".to_string()),
-        grammar: Grammar {
-            naming: Naming {
-                case: "kebab".to_string(),
-            },
-            pattern: "{ module } { resource? } { verb }".to_string(),
-            verbs: Vec::new(),
-        },
-        global_flags: vec![
-            ParamSpec {
-                long: "verbose".to_string(),
-                short: Some('v'),
-                about: Some("Enable verbose logging".to_string()),
-                kind: ValueKind::Bool,
-                target: Some("SYS_FLAG_VERBOSE".to_string()),
-                ..Default::default()
-            },
-            ParamSpec {
-                long: "head".to_string(),
-                short: Some('I'),
-                about: Some(
-                    "Force the output to be request headers instead of content".to_string(),
-                ),
-                target: Some("SYS_FLAG_HEAD".to_string()),
-                ..Default::default()
-            },
-            ParamSpec {
-                long: "output".to_string(),
-                short: Some('o'),
-                about: Some("Set the printed structure".to_string()),
-                target: Some("SYS_FLAG_OUTPUT".to_string()),
-                default: Some("json".to_string()),
-                choices: Some(vec![
-                    "json".to_string(),
-                    "table".to_string(),
-                    "none".to_string(),
-                ]),
-                ..Default::default()
-            },
-            ParamSpec {
-                long: "output-prop".to_string(),
-                about: Some("Select which properties are output".to_string()),
-                target: Some("SYS_FLAG_OUTPUT_PROP".to_string()),
-                multiple: true,
-                ..Default::default()
-            },
-            ParamSpec {
-                long: "output-sort".to_string(),
-                about: Some(
-                    "Sort output by given property. Prefix the property with `-` for descending"
-                        .to_string(),
-                ),
-                target: Some("SYS_FLAG_OUTPUT_SORT".to_string()),
-                multiple: true,
-                allow_hyphen_values: Some(true),
-                ..Default::default()
-            },
-        ],
-        ..Default::default()
-    }
+    CoreSpec::init_default_template("system", Some("Baked-in system commands".to_string()))
 }

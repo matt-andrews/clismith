@@ -11,6 +11,10 @@ grammar:
     - { method: GET, target: item, verb: get }
     - { method: GET, target: collection, verb: list }
     - { method: POST, target: item, verb: create }
+    - { method: POST, target: collection, verb: create }
+    - { method: PUT, target: item, verb: update }
+    - { method: PATCH, target: item, verb: update }
+    - { method: DELETE, target: item, verb: delete }
 
 required_modules:
   - { module: manifest, version: "*" }

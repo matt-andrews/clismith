@@ -1,10 +1,13 @@
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 use crate::v1spec::{
     diff::{Bump, Diff, cmp_field, diff_by_key, diff_opt_by_key},
     param::ParamSpec,
+    value_kind::ValueKind,
 };
 
+#[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct CoreSpec {
     pub name: String,
@@ -55,6 +58,114 @@ pub struct RequiredModule {
 pub struct Registry {
     pub index: String,
     pub secure: bool,
+}
+
+impl CoreSpec {
+    pub fn init_default_template(name: &str, about: Option<String>) -> Self {
+        Self {
+            name: name.to_string(),
+            about,
+            vspec: "v1".to_string(),
+            grammar: Grammar {
+                naming: Naming {
+                    case: "kebab".to_string(),
+                },
+                pattern: "{ module } { resource? } { verb }".to_string(),
+                verbs: vec![
+                    VerbDefinition {
+                        method: "GET".to_string(),
+                        target: "item".to_string(),
+                        verb: "get".to_string(),
+                    },
+                    VerbDefinition {
+                        method: "GET".to_string(),
+                        target: "collection".to_string(),
+                        verb: "list".to_string(),
+                    },
+                    VerbDefinition {
+                        method: "POST".to_string(),
+                        target: "collection".to_string(),
+                        verb: "create".to_string(),
+                    },
+                    VerbDefinition {
+                        method: "POST".to_string(),
+                        target: "item".to_string(),
+                        verb: "create".to_string(),
+                    },
+                    VerbDefinition {
+                        method: "PUT".to_string(),
+                        target: "item".to_string(),
+                        verb: "update".to_string(),
+                    },
+                    VerbDefinition {
+                        method: "PATCH".to_string(),
+                        target: "item".to_string(),
+                        verb: "update".to_string(),
+                    },
+                    VerbDefinition {
+                        method: "DELETE".to_string(),
+                        target: "item".to_string(),
+                        verb: "delete".to_string(),
+                    },
+                ],
+            },
+            required_modules: Some(vec![RequiredModule {
+                module: "manifest".to_string(),
+                version: "*".to_string(),
+            }]),
+            global_flags: vec![
+            ParamSpec {
+                long: "verbose".to_string(),
+                short: Some('v'),
+                about: Some("Enable verbose logging".to_string()),
+                kind: ValueKind::Bool,
+                target: Some("SYS_FLAG_VERBOSE".to_string()),
+                ..Default::default()
+            },
+            ParamSpec {
+                long: "head".to_string(),
+                short: Some('I'),
+                about: Some(
+                    "Force the output to be request headers instead of content".to_string(),
+                ),
+                target: Some("SYS_FLAG_HEAD".to_string()),
+                ..Default::default()
+            },
+            ParamSpec {
+                long: "output".to_string(),
+                short: Some('o'),
+                about: Some("Set the printed structure".to_string()),
+                target: Some("SYS_FLAG_OUTPUT".to_string()),
+                default: Some("json".to_string()),
+                choices: Some(vec![
+                    "json".to_string(),
+                    "table".to_string(),
+                    "none".to_string(),
+                ]),
+                ..Default::default()
+            },
+            ParamSpec {
+                long: "output-prop".to_string(),
+                about: Some("Select which properties are output".to_string()),
+                target: Some("SYS_FLAG_OUTPUT_PROP".to_string()),
+                multiple: true,
+                ..Default::default()
+            },
+            ParamSpec {
+                long: "output-sort".to_string(),
+                about: Some(
+                    "Sort output by given property. Prefix the property with `-` for descending"
+                        .to_string(),
+                ),
+                target: Some("SYS_FLAG_OUTPUT_SORT".to_string()),
+                multiple: true,
+                allow_hyphen_values: Some(true),
+                ..Default::default()
+            },
+        ],
+            ..Default::default()
+        }
+    }
 }
 
 impl Diff for CoreSpec {

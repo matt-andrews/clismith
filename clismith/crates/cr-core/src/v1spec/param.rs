@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 use crate::v1spec::{
     diff::{Bump, Diff, cmp_field, cmp_field_with, diff_string_list},
@@ -6,6 +7,7 @@ use crate::v1spec::{
     value_kind::ValueKind,
 };
 
+#[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct ParamSpec {
     #[serde(alias = "name")]
