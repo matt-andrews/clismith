@@ -7,9 +7,9 @@ edition = "2024"
 cr-core = { workspace = true }
 
 anyhow = { workspace = true }
-hex = "0.4"
-oas3 = { version = "0", features = ["yaml-spec"] }
+hex = { workspace = true }
+oas3 = { workspace = true }
 semver = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
-sha2 = { version = "0" }
+sha2 = { workspace = true }

@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use cr_core::v1spec::index::{IndexDisplayModule, IndexModule};
 use serde_json::{Value, to_value};
 
-use crate::{invocation::Invocation, utils::get_manifest};
+use crate::runtime::{invocation::Invocation, utils::get_manifest};
 
 const SYS_CMD_MANIFEST_LIST: &str = "SYS_CMD_MANIFEST_LIST";
 

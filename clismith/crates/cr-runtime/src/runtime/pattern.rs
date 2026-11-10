@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use crate::errors::PatternError;
+use crate::runtime::errors::PatternError;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Segment {

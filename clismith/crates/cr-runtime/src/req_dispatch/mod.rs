@@ -6,11 +6,8 @@ use reqwest::{
 };
 use serde_json::Value;
 
-use crate::{
-    request::{
-        HttpMethod::{self},
-        HttpRequestMessage,
-    },
+use crate::req_dispatch::{
+    request::{HttpMethod, HttpRequestMessage},
     response::HttpResponseMessage,
 };
 

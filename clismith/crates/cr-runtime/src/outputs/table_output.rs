@@ -1,7 +1,7 @@
 use serde_json::Value;
 use std::collections::HashMap;
 
-use crate::OutputShape;
+use crate::outputs::OutputShape;
 
 pub struct TableOutput {}
 impl OutputShape for TableOutput {

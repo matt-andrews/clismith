@@ -1,26 +1,26 @@
 use std::{collections::BTreeMap, process::ExitCode};
 
 use cr_core::v1spec::param_where::ParamWhere;
-use cr_outputs::{AnyOutput, OutputShape, output_for};
-use cr_req_dispatch::{
-    http_dispatch,
-    request::{HttpMethod, HttpRequestMessage},
-};
 
 use crate::{
-    invocation::Invocation,
-    module_installer::{check_for_app_installer, check_for_required_modules},
-    preprocessor::result_preprocess,
-    tree::CommandTree,
+    outputs::{AnyOutput, OutputShape, output_for},
+    req_dispatch::{
+        http_dispatch,
+        request::{HttpMethod, HttpRequestMessage},
+    },
+    runtime::{
+        invocation::Invocation,
+        module_installer::{check_for_app_installer, check_for_required_modules},
+        preprocessor::result_preprocess,
+        sys_dispatcher,
+        tree::CommandTree,
+    },
 };
-mod errors;
-mod invocation;
-mod module_installer;
-mod pattern;
-mod preprocessor;
-mod sys_dispatcher;
-mod tree;
-mod utils;
+
+mod installer;
+mod outputs;
+mod req_dispatch;
+mod runtime;
 
 pub async fn exec() -> anyhow::Result<ExitCode> {
     //

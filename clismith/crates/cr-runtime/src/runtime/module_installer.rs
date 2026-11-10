@@ -1,7 +1,9 @@
 use cr_core::v1spec::{core::CoreSpec, index::Index};
-use cr_installer::{app_install, module_install};
 
-use crate::utils::{get_core, get_manifest};
+use crate::{
+    installer::{app_install, module_install},
+    runtime::utils::{get_core, get_manifest},
+};
 
 pub async fn check_for_app_installer() -> Option<()> {
     let mut args = std::env::args_os();

@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 
 use serde_json::{Map, Value};
 
-use crate::invocation::{Invocation, SYS_FLAG_OUTPUT_PROP, SYS_FLAG_OUTPUT_SORT};
+use crate::runtime::invocation::{Invocation, SYS_FLAG_OUTPUT_PROP, SYS_FLAG_OUTPUT_SORT};
 
 pub fn result_preprocess(output: &mut Value, inv: &Invocation) {
     //

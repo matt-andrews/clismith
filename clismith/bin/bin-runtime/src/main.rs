@@ -1,6 +1,6 @@
 use std::process::ExitCode;
 
-use cr_exec::exec;
+use cr_runtime::exec;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<ExitCode> {

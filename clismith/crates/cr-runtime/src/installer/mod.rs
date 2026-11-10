@@ -1,5 +1,4 @@
-use crate::protocol_selector::ProtocolShape;
-use crate::protocol_selector::protocol_for;
+use crate::installer::protocol_selector::{ProtocolShape, protocol_for};
 
 mod protocol_selector;
 pub async fn module_install(index: &str, module_name: &str) -> anyhow::Result<()> {

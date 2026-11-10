@@ -2,6 +2,7 @@ use std::collections::BTreeMap;
 
 use serde::Deserialize;
 
+#[allow(dead_code)]
 pub struct HttpRequestMessage {
     pub route: String,
     pub base_uri: String,

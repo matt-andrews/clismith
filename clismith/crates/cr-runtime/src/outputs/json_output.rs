@@ -1,6 +1,6 @@
 use serde_json::Value;
 
-use crate::OutputShape;
+use crate::outputs::OutputShape;
 
 #[derive(Debug)]
 pub struct JsonOutput {}

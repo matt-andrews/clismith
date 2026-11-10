@@ -2,30 +2,35 @@
 resolver = "3"
 members = [
     "bin/bin-builder",
-    "bin/bin-exec",
+    "bin/bin-runtime",
     "crates/cr-compiler",
     "crates/cr-core",
-    "crates/cr-exec",
-    "crates/cr-installer",
-    "crates/cr-outputs",
-    "crates/cr-req-dispatch",
+    "crates/cr-runtime",
 ]
 
 [workspace.dependencies]
 cr-compiler = { path = "crates/cr-compiler" }
 cr-core = { path = "crates/cr-core" }
-cr-exec = { path = "crates/cr-exec" }
-cr-installer = { path = "crates/cr-installer" }
-cr-outputs = { path = "crates/cr-outputs" }
-cr-req-dispatch = { path = "crates/cr-req-dispatch" }
+cr-runtime = { path = "crates/cr-runtime" }
 
 anyhow = { version = "1" }
-clap = { version = "4.6", features = ["derive", "string"] }
+clap = { version = "4", features = ["derive", "string"] }
+comfy-table = { version = "8" }
+dirs = { version = "7" }
 dotenvy = { version = "0" }
+dunce = { version = "1.0.5" }
+enum_dispatch = { version = "0" }
+hex = { version = "0.4" }
 noyalib = { version = "0", features = ["compat-serde-yaml"] }
+oas3 = { version = "0", features = ["yaml-spec"] }
+regex = { version = "1" }
+reqwest = { version = "0", features = ["json"] }
 semver = { version = "1" }
 serde = { version = "1", features = ["derive"] }
+serde_core = { version = "1" }
 serde_json = { version = "1", features = ["preserve_order"] }
+serde_with = { version = "3" }
+sha2 = { version = "0" }
 thiserror = { version = "2" }
 tokio = { version = "1", features = ["full"] }
 uuid = { version = "1", features = ["v4", "serde"] }

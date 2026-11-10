@@ -9,7 +9,7 @@ use cr_core::{
     v1spec::index::{Index, IndexModule},
 };
 
-use crate::protocol_selector::ProtocolShape;
+use crate::installer::protocol_selector::ProtocolShape;
 
 pub struct FileProtocol {
     pub loc: String,

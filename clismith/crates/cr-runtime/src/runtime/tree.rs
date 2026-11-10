@@ -13,7 +13,7 @@ use cr_core::v1spec::{
     value_kind::ValueKind,
 };
 
-use crate::{
+use crate::runtime::{
     errors::BuildError,
     invocation::{Invocation, Value},
     pattern::{Pattern, Segment},

@@ -5,12 +5,12 @@ edition = "2024"
 
 [dependencies]
 anyhow = { workspace = true }
-dirs = { version = "7" }
+dirs = { workspace = true }
 noyalib = { workspace = true }
-regex = { version = "1.13.1" }
+regex = { workspace = true }
 semver = { workspace = true }
 serde = { workspace = true }
-serde_core = { version = "1" }
+serde_core = { workspace = true }
 serde_json = { workspace = true }
-serde_with = { version = "3.24.0" }
+serde_with = { workspace = true }
 thiserror = { workspace = true }

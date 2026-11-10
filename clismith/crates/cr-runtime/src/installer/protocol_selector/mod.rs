@@ -1,6 +1,6 @@
 use enum_dispatch::enum_dispatch;
 
-use crate::protocol_selector::file_protocol::FileProtocol;
+use crate::installer::protocol_selector::file_protocol::FileProtocol;
 
 mod file_protocol;
 

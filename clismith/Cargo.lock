@@ -129,12 +129,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "bin-exec"
+name = "bin-runtime"
 version = "0.0.0"
 dependencies = [
  "anyhow",
  "clap",
- "cr-exec",
+ "cr-runtime",
  "tokio",
 ]
 
@@ -384,52 +384,18 @@ dependencies = [
 ]
 
 [[package]]
-name = "cr-exec"
+name = "cr-runtime"
 version = "0.0.0"
 dependencies = [
  "anyhow",
  "clap",
- "cr-core",
- "cr-installer",
- "cr-outputs",
- "cr-req-dispatch",
- "dirs",
- "noyalib",
- "semver",
- "serde",
- "serde_json",
- "thiserror",
- "tokio",
-]
-
-[[package]]
-name = "cr-installer"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "cr-core",
- "enum_dispatch",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "cr-outputs"
-version = "0.0.0"
-dependencies = [
  "comfy-table",
  "cr-core",
+ "dirs",
  "enum_dispatch",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "cr-req-dispatch"
-version = "0.0.0"
-dependencies = [
- "cr-core",
+ "noyalib",
  "reqwest",
+ "semver",
  "serde",
  "serde_json",
  "thiserror",

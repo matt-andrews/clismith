@@ -1,18 +1,18 @@
 [package]
-name = "cr-exec"
+name = "cr-runtime"
 version = "0.0.0"
 edition = "2024"
 
 [dependencies]
 cr-core = { workspace = true }
-cr-installer = { workspace = true }
-cr-outputs = { workspace = true }
-cr-req-dispatch = { workspace = true }
 
 anyhow = { workspace = true }
 clap = { workspace = true }
-dirs = { version = "7" }
+comfy-table = { workspace = true }
+dirs = { workspace = true }
+enum_dispatch = { workspace = true }
 noyalib = { workspace = true }
+reqwest = { workspace = true }
 semver = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
