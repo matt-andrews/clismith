@@ -9,6 +9,8 @@ use crate::v1spec::{
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ModuleSpec {
     pub name: String,
+    #[serde(default = "vspec")]
+    pub vspec: String,
     #[serde(default)]
     pub openapi_spec: Option<PathBuf>,
     #[serde(default)]
@@ -102,4 +104,8 @@ impl Diff for CommandSpec {
             Bump::Major,
         );
     }
+}
+
+fn vspec() -> String {
+    "v1".to_string()
 }

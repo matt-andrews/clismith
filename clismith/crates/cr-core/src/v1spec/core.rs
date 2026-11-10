@@ -8,6 +8,8 @@ use crate::v1spec::{
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct CoreSpec {
     pub name: String,
+    #[serde(default = "vspec")]
+    pub vspec: String,
     pub about: Option<String>,
     pub grammar: Grammar,
 
@@ -146,4 +148,8 @@ impl Diff for Registry {
         cmp_field(out, path, "index", &self.index, &new.index, Bump::Major);
         cmp_field(out, path, "secure", &self.secure, &new.secure, Bump::Major);
     }
+}
+
+fn vspec() -> String {
+    "v1".to_string()
 }

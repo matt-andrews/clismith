@@ -50,5 +50,6 @@ fn sys_manifest() -> ModuleSpec {
             result: None,
         }],
         openapi_spec: None,
+        vspec: "v1".to_string(),
     }
 }
