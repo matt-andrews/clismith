@@ -8,17 +8,8 @@ name = "clismith-exec"
 path = "src/main.rs"
 
 [dependencies]
-cr-core = { workspace = true }
-cr-installer = { workspace = true }
-cr-outputs = { workspace = true }
-cr-req-dispatch = { workspace = true }
+cr-exec = { workspace = true }
 
 anyhow = { workspace = true }
 clap = { workspace = true }
-dirs = { version = "7" }
-noyalib = { workspace = true }
-semver = { workspace = true }
-serde = { workspace = true }
-serde_json = { workspace = true }
-thiserror = { workspace = true }
 tokio = { workspace = true }

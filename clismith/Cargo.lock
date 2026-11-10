@@ -134,16 +134,7 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "clap",
- "cr-core",
- "cr-installer",
- "cr-outputs",
- "cr-req-dispatch",
- "dirs",
- "noyalib",
- "semver",
- "serde",
- "serde_json",
- "thiserror",
+ "cr-exec",
  "tokio",
 ]
 
@@ -390,6 +381,25 @@ dependencies = [
  "serde_json",
  "serde_with",
  "thiserror",
+]
+
+[[package]]
+name = "cr-exec"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "cr-core",
+ "cr-installer",
+ "cr-outputs",
+ "cr-req-dispatch",
+ "dirs",
+ "noyalib",
+ "semver",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
 ]
 
 [[package]]
