@@ -11,13 +11,13 @@ use cr_core::v1spec::{
         module::{CommandCompiled, ModuleCompiled},
         param::ParamCompiled,
     },
+    index::Index,
     value_kind::ValueKind,
 };
 
 use crate::{
     errors::BuildError,
     invocation::{Invocation, Value},
-    manifest::Manifest,
     pattern::{Pattern, Segment},
     utils::{get_core, get_manifest, get_module},
 };
@@ -60,7 +60,7 @@ pub struct Compilation {
 
 impl CommandTree {
     pub fn from_yaml() -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
-        let manifest: Manifest = get_manifest()?;
+        let manifest: Index = get_manifest()?;
         let manifest_module = manifest
             .latest_module(&get_module_name())
             .unwrap_or_else(|| panic!("module not found: {}", get_module_name()));

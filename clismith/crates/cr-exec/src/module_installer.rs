@@ -1,10 +1,7 @@
-use cr_core::v1spec::compiled::core::CoreCompiled;
+use cr_core::v1spec::{compiled::core::CoreCompiled, index::Index};
 use cr_installer::{app_install, module_install};
 
-use crate::{
-    manifest::Manifest,
-    utils::{get_core, get_manifest},
-};
+use crate::utils::{get_core, get_manifest};
 
 pub async fn check_for_app_installer() -> Option<()> {
     let mut args = std::env::args_os();
@@ -36,7 +33,7 @@ pub async fn check_for_app_installer() -> Option<()> {
 
 pub async fn check_for_required_modules() -> anyhow::Result<()> {
     //
-    let manifest: Manifest = get_manifest()?;
+    let manifest: Index = get_manifest()?;
     let core: CoreCompiled = get_core(&manifest)?;
     for req in core.required_modules.unwrap_or_default() {
         if manifest.latest_module(&req.module).is_none() {
@@ -48,7 +45,7 @@ pub async fn check_for_required_modules() -> anyhow::Result<()> {
 }
 
 pub async fn install_module(module_name: &str) -> anyhow::Result<()> {
-    let manifest: Manifest = get_manifest()?;
+    let manifest: Index = get_manifest()?;
     let core: CoreCompiled = get_core(&manifest)?;
     let registry = core
         .registries

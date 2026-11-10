@@ -15,7 +15,6 @@ use crate::{
 };
 mod errors;
 mod invocation;
-mod manifest;
 mod module_installer;
 mod pattern;
 mod preprocessor;

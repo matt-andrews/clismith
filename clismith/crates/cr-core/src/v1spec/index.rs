@@ -16,6 +16,29 @@ pub struct IndexModule {
     pub sha256: String,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+pub struct IndexDisplayModule {
+    #[serde(rename = "module")]
+    pub name: String,
+    #[serde(rename = "version")]
+    pub version: String,
+    #[serde(rename = "hash")]
+    pub sha256: String,
+    #[serde(rename = "target")]
+    pub target: String,
+}
+
+impl From<IndexModule> for IndexDisplayModule {
+    fn from(value: IndexModule) -> Self {
+        Self {
+            name: value.name.clone(),
+            version: value.version.clone(),
+            sha256: value.sha256.clone(),
+            target: value.target.clone(),
+        }
+    }
+}
+
 impl Index {
     pub fn new(name: &str, core_module_file: &str) -> Self {
         Self {
