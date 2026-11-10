@@ -3,11 +3,9 @@ use std::collections::BTreeMap;
 use cr_core::{
     helpers::deconstruct_case,
     v1spec::{
-        authored::{
-            core::CoreSpec,
-            module::{CommandSpec, ModuleSpec},
-            param::ParamSpec,
-        },
+        core::CoreSpec,
+        module::{CommandSpec, ModuleSpec},
+        param::ParamSpec,
         param_where::ParamWhere,
         value_kind::ValueKind,
     },

@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
 
 use crate::v1spec::{
     diff::{Bump, Diff, cmp_field, cmp_field_with, diff_string_list},
@@ -7,9 +6,8 @@ use crate::v1spec::{
     value_kind::ValueKind,
 };
 
-#[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct ParamCompiled {
+pub struct ParamSpec {
     #[serde(alias = "name")]
     pub long: String,
     #[serde(default)]
@@ -34,7 +32,7 @@ pub struct ParamCompiled {
     pub allow_hyphen_values: Option<bool>,
 }
 
-impl Diff for ParamCompiled {
+impl Diff for ParamSpec {
     fn diff(&self, new: &Self, path: &str, out: &mut Vec<crate::v1spec::diff::Change>) {
         cmp_field(out, path, "long", &self.long, &new.long, Bump::Major);
         cmp_field(out, path, "short", &self.short, &new.short, Bump::Major);

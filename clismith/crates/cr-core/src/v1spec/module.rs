@@ -1,25 +1,26 @@
 use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, path::PathBuf};
 
 use crate::v1spec::{
-    compiled::param::ParamCompiled,
     diff::{Bump, Diff, cmp_field, diff_by_key},
+    param::ParamSpec,
 };
 
-#[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct ModuleCompiled {
+pub struct ModuleSpec {
     pub name: String,
+    #[serde(default)]
+    pub openapi_spec: Option<PathBuf>,
+    #[serde(default)]
     pub about: Option<String>,
     #[serde(default)]
     pub base_uri: Option<String>,
-    pub commands: Vec<CommandCompiled>,
+    #[serde(default)]
+    pub commands: Vec<CommandSpec>,
 }
 
-#[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct CommandCompiled {
+pub struct CommandSpec {
     #[serde(default)]
     pub about: Option<String>,
     #[serde(default)]
@@ -29,14 +30,22 @@ pub struct CommandCompiled {
     #[serde(default)]
     pub route: Option<String>,
     #[serde(default)]
-    pub args: Vec<ParamCompiled>,
+    pub args: Vec<ParamSpec>,
     #[serde(default)]
-    pub flags: Vec<ParamCompiled>,
+    pub flags: Vec<ParamSpec>,
+    #[serde(default)]
+    pub result: Option<SchemaRef>,
     #[serde(flatten)]
     pub bindings: BTreeMap<String, String>,
 }
 
-impl CommandCompiled {
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct SchemaRef {
+    #[serde(rename = "$ref")]
+    pub reference: String,
+}
+
+impl CommandSpec {
     pub fn describe(&self) -> String {
         self.bindings
             .iter()
@@ -46,7 +55,7 @@ impl CommandCompiled {
     }
 }
 
-impl Diff for ModuleCompiled {
+impl Diff for ModuleSpec {
     fn diff(&self, new: &Self, path: &str, out: &mut Vec<crate::v1spec::diff::Change>) {
         cmp_field(out, path, "name", &self.name, &new.name, Bump::Major);
         cmp_field(out, path, "about", &self.about, &new.about, Bump::Minor);
@@ -68,7 +77,7 @@ impl Diff for ModuleCompiled {
     }
 }
 
-impl Diff for CommandCompiled {
+impl Diff for CommandSpec {
     fn diff(&self, new: &Self, path: &str, out: &mut Vec<crate::v1spec::diff::Change>) {
         cmp_field(out, path, "about", &self.about, &new.about, Bump::Minor);
         cmp_field(out, path, "target", &self.target, &new.target, Bump::Major);

@@ -6,12 +6,10 @@ use std::{
 
 use clap::{Arg, ArgAction, ArgMatches, Command, builder::PossibleValuesParser, value_parser};
 use cr_core::v1spec::{
-    compiled::{
-        core::CoreCompiled,
-        module::{CommandCompiled, ModuleCompiled},
-        param::ParamCompiled,
-    },
+    core::CoreSpec,
     index::Index,
+    module::{CommandSpec, ModuleSpec},
+    param::ParamSpec,
     value_kind::ValueKind,
 };
 
@@ -45,8 +43,8 @@ fn meaning(slot: &Option<String>) -> String {
 #[derive(Debug)]
 pub struct CommandTree {
     pattern: Pattern,
-    globals: Vec<ParamCompiled>,
-    specs: Vec<CommandCompiled>,
+    globals: Vec<ParamSpec>,
+    specs: Vec<CommandSpec>,
     root: Node,
     clap: Command,
     base_uri: Option<String>,
@@ -54,8 +52,8 @@ pub struct CommandTree {
 
 #[derive(Debug)]
 pub struct Compilation {
-    pub core: CoreCompiled,
-    pub module: ModuleCompiled,
+    pub core: CoreSpec,
+    pub module: ModuleSpec,
 }
 
 impl CommandTree {
@@ -329,11 +327,11 @@ fn invalid_word(w: &str) -> Option<&'static str> {
 
 fn validate_params(
     context: &str,
-    params: &[ParamCompiled],
-    existing: &[ParamCompiled],
+    params: &[ParamSpec],
+    existing: &[ParamSpec],
     positional: bool,
 ) -> Result<(), BuildError> {
-    let err = |p: &ParamCompiled, reason: &str| BuildError::InvalidParam {
+    let err = |p: &ParamSpec, reason: &str| BuildError::InvalidParam {
         context: context.to_string(),
         name: p.long.clone(),
         reason: reason.to_string(),
@@ -405,7 +403,7 @@ fn validate_params(
     Ok(())
 }
 
-fn to_arg(p: &ParamCompiled, positional: bool) -> Arg {
+fn to_arg(p: &ParamSpec, positional: bool) -> Arg {
     let mut a = Arg::new(p.long.clone());
 
     if p.allow_hyphen_values.unwrap_or_default() {
@@ -445,7 +443,7 @@ fn to_arg(p: &ParamCompiled, positional: bool) -> Arg {
     a.required(required)
 }
 
-fn extract(p: &ParamCompiled, m: &ArgMatches) -> Option<Value> {
+fn extract(p: &ParamSpec, m: &ArgMatches) -> Option<Value> {
     fn grab<T: Clone + Send + Sync + 'static>(
         m: &ArgMatches,
         name: &str,

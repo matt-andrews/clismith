@@ -1,14 +1,12 @@
 use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
 
 use crate::v1spec::{
-    compiled::param::ParamCompiled,
     diff::{Bump, Diff, cmp_field, diff_by_key, diff_opt_by_key},
+    param::ParamSpec,
 };
 
-#[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct CoreCompiled {
+pub struct CoreSpec {
     pub name: String,
     pub about: Option<String>,
     pub grammar: Grammar,
@@ -17,10 +15,13 @@ pub struct CoreCompiled {
     pub required_modules: Option<Vec<RequiredModule>>,
 
     #[serde(default)]
+    pub is_singleton: Option<bool>,
+
+    #[serde(default)]
     pub registries: Option<Vec<Registry>>,
 
     #[serde(default)]
-    pub global_flags: Vec<ParamCompiled>,
+    pub global_flags: Vec<ParamSpec>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -54,7 +55,7 @@ pub struct Registry {
     pub secure: bool,
 }
 
-impl Diff for CoreCompiled {
+impl Diff for CoreSpec {
     fn diff(&self, new: &Self, path: &str, out: &mut Vec<crate::v1spec::diff::Change>) {
         cmp_field(out, path, "name", &self.name, &new.name, Bump::Major);
         cmp_field(out, path, "about", &self.about, &new.about, Bump::Minor);

@@ -4,10 +4,7 @@ use cr_core::{
     dir_helpers::{DirType, get_dir, get_dir_with},
     helpers::env_or,
     io_helpers::deserialize_from_file,
-    v1spec::{
-        authored::{core::CoreSpec, module::ModuleSpec},
-        index::Index,
-    },
+    v1spec::{core::CoreSpec, index::Index, module::ModuleSpec},
 };
 use oas3::Spec;
 

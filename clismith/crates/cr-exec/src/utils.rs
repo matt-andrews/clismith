@@ -3,8 +3,9 @@ use cr_core::{
     helpers::env_or,
     io_helpers::deserialize_from_file,
     v1spec::{
-        compiled::{core::CoreCompiled, module::ModuleCompiled},
+        core::CoreSpec,
         index::{Index, IndexModule},
+        module::ModuleSpec,
     },
 };
 
@@ -15,14 +16,14 @@ pub fn get_manifest() -> anyhow::Result<Index> {
     ))?)
 }
 
-pub fn get_core(manifest: &Index) -> anyhow::Result<CoreCompiled> {
+pub fn get_core(manifest: &Index) -> anyhow::Result<CoreSpec> {
     Ok(deserialize_from_file(&get_dir_with(
         DirType::Exec,
         &manifest.core,
     ))?)
 }
 
-pub fn get_module(module: &IndexModule) -> anyhow::Result<ModuleCompiled> {
+pub fn get_module(module: &IndexModule) -> anyhow::Result<ModuleSpec> {
     Ok(deserialize_from_file(&get_dir_with(
         DirType::Exec,
         &module.target,

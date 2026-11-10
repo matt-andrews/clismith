@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 
-use cr_core::v1spec::compiled::module::CommandCompiled;
+use cr_core::v1spec::module::CommandSpec;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Value {
@@ -24,7 +24,7 @@ pub struct Invocation {
     pub path: Vec<String>,
     pub bindings: BTreeMap<String, String>,
     pub params: BTreeMap<String, Value>,
-    pub triggered_command: CommandCompiled,
+    pub triggered_command: CommandSpec,
     pub base_uri: String,
 }
 

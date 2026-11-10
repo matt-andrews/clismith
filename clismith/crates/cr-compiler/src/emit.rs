@@ -2,10 +2,10 @@ use cr_core::{
     dir_helpers::{DirType, get_dir_with},
     io_helpers::{deserialize_from_file, serialize_to_file},
     v1spec::{
-        authored::{Compiled, core::CoreSpec, module::ModuleSpec},
-        compiled::{core::CoreCompiled, module::ModuleCompiled},
+        core::CoreSpec,
         diff::{Bump, Change, Diff},
         index::{Index, IndexModule},
+        module::ModuleSpec,
     },
 };
 use semver::Version;
@@ -32,7 +32,7 @@ pub fn emit_module(module: &ModuleSpec, index: &mut Index) -> anyhow::Result<()>
     let module_name = &module.name;
     let index_imut = index.clone();
     let index_module = index_imut.latest_module(module_name);
-    let compiled: ModuleCompiled = module.to_compiled();
+    let compiled: ModuleSpec = module.clone();
     emit_obj(index, module, &compiled, index_module, module_name, |v| {
         deserialize_from_file(&get_dir_with(DirType::Target, v))
             .expect("expected to find an older module to compare")
@@ -44,7 +44,7 @@ fn emit_project(module: &CoreSpec, index: &mut Index) -> anyhow::Result<()> {
     let module_name = "core";
     let index_imut = index.clone();
     let index_module = index_imut.latest_module(module_name);
-    let compiled: CoreCompiled = module.to_compiled();
+    let compiled: CoreSpec = module.clone();
     let module_name = emit_obj(index, module, &compiled, index_module, module_name, |v| {
         deserialize_from_file(&get_dir_with(DirType::Target, v))
             .expect("expected to find an older module to compare")
@@ -61,19 +61,17 @@ fn emit_modules(modules: &[ModuleSpec], index: &mut Index) -> anyhow::Result<()>
 }
 
 ///emit either a ModuleCompiled or CoreCompiled to the target dir. Handles sha check and version bump
-fn emit_obj<T, C>(
+fn emit_obj<T>(
     index: &mut Index,
     module: &T,
-    compiled: &C,
+    compiled: &T,
     index_module: Option<&IndexModule>,
     module_name: &str,
-    old_module: fn(&str) -> C,
+    old_module: fn(&str) -> T,
 ) -> anyhow::Result<String>
 where
     T: Serialize,
-    T: Compiled<C>,
-    C: Serialize,
-    C: Diff,
+    T: Diff,
 {
     if let Some(index_module) = index_module {
         let mut version = Version::parse(&index_module.version)?;
@@ -101,7 +99,7 @@ where
 }
 
 ///handles the serilization of the module and adds the module to the index
-fn serialize_module<T, C>(
+fn serialize_module<T>(
     index: &mut Index,
     module: &T,
     module_name: &str,
@@ -110,9 +108,7 @@ fn serialize_module<T, C>(
 ) -> anyhow::Result<String>
 where
     T: Serialize,
-    T: Compiled<C>,
-    C: Serialize,
-    C: Diff,
+    T: Diff,
 {
     let module_file_name = format!("{}.v{}.json", module_name, version);
     let index_module = IndexModule {
@@ -123,7 +119,7 @@ where
     };
     index.modules.push(index_module);
     serialize_to_file(
-        &module.to_compiled(),
+        &module,
         &get_dir_with(DirType::Target, &module_file_name.clone()),
     )?;
     Ok(module_file_name)

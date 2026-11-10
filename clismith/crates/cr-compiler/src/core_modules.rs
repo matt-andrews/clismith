@@ -3,10 +3,8 @@ use std::collections::BTreeMap;
 use cr_core::{
     helpers::env_or,
     v1spec::{
-        authored::{
-            module::{CommandSpec, ModuleSpec},
-            param::ParamSpec,
-        },
+        module::{CommandSpec, ModuleSpec},
+        param::ParamSpec,
         param_where::ParamWhere,
         value_kind::ValueKind,
     },
