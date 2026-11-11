@@ -152,5 +152,8 @@ pub fn get_sys_module(module: &str) -> Option<ModuleSpec> {
 
 pub fn get_sys_core() -> CoreSpec {
     //
-    CoreSpec::init_default_template("system", Some("Baked-in system commands".to_string()))
+    let mut result =
+        CoreSpec::init_default_template("system", Some("Baked-in system commands".to_string()));
+    result.required_modules = None;
+    result
 }
