@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 
-use cr_core::v1spec::module::CommandSpec;
+use cr_core::v1spec::{module::CommandSpec, param::ParamSpec};
 
 use crate::runtime::sys::{SYS_FLAG_HEAD, SYS_FLAG_OUTPUT, SYS_FLAG_VERBOSE};
 
@@ -60,6 +60,15 @@ impl Invocation {
             ),
             _ => None,
         }
+    }
+
+    pub fn args_and_flags(&self) -> Vec<ParamSpec> {
+        self.triggered_command
+            .args
+            .clone()
+            .into_iter()
+            .chain(self.triggered_command.flags.clone())
+            .collect()
     }
 
     /* pub fn list(&self, name: &str) -> &[Value] {

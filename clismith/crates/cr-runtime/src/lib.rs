@@ -104,31 +104,36 @@ async fn dispatch(inv: &Invocation) -> ExitCode {
 fn route_resolver(inv: &Invocation) -> String {
     //
     let mut result = inv.triggered_command.clone().route.unwrap_or_default();
+    let args_and_flags = &inv.args_and_flags();
 
-    for route_param in inv
-        .triggered_command
-        .args
+    for route_param in args_and_flags
         .iter()
         .filter(|f| f.param_where == ParamWhere::Route)
     {
-        let pattern = &format!("{{{}}}", route_param.target.clone().unwrap_or_default());
+        let pattern = &format!(
+            "{{{}}}",
+            route_param
+                .target
+                .clone()
+                .unwrap_or(route_param.long.clone())
+        );
         result = result.replace(pattern, inv.str(&route_param.long).unwrap_or_default());
     }
 
     let mut qry: String = String::new();
 
-    for qry_param in inv
-        .triggered_command
-        .args
+    for qry_param in args_and_flags
         .iter()
         .filter(|f| f.param_where == ParamWhere::Query)
     {
-        qry = format!(
-            "{}&{}={}",
-            qry,
-            qry_param.long,
-            inv.str(&qry_param.long).unwrap_or_default()
-        );
+        if let Some(arg) = inv.str(&qry_param.target.clone().unwrap_or(qry_param.long.clone())) {
+            qry = format!(
+                "{}&{}={}",
+                qry,
+                qry_param.target.clone().unwrap_or(qry_param.long.clone()),
+                arg
+            );
+        }
     }
 
     if !qry.is_empty() {
