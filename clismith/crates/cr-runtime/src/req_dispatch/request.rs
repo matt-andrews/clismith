@@ -8,7 +8,7 @@ pub struct HttpRequestMessage {
     pub base_uri: String,
     pub method: HttpMethod,
     pub headers: BTreeMap<String, String>,
-    pub body: Option<String>,
+    pub body: Option<serde_json::Value>,
     pub verbose: bool,
     pub output_type_headers: bool,
 }

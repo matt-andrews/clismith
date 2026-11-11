@@ -4,7 +4,7 @@ use cr_core::{
     helpers::deconstruct_case,
     v1spec::{
         core::CoreSpec,
-        module::{CommandSpec, ModuleSpec},
+        module::{CommandSpec, ModuleSpec, RequestBody},
         param::ParamSpec,
         param_where::ParamWhere,
         value_kind::ValueKind,
@@ -42,6 +42,20 @@ fn merge_module(project: &CoreSpec, module: &ModuleSpec, spec: Option<&Spec>) ->
             //
             let grammar_parts = get_grammar_route_parts(project, path);
             for (method, op) in item.methods() {
+                //extra work for request body flag
+                let req_body = get_request_body_from_op(op, spec);
+                let mut flags: Vec<ParamSpec> = Vec::new();
+                if let Some(body) = &req_body {
+                    flags.push(ParamSpec {
+                        about: Some("The body for the request".to_string()),
+                        long: normalize_name(project, "body"),
+                        target: Some("SYS_FLAG_REQ_BODY".to_string()),
+                        short: Some('b'),
+                        required: body.required,
+                        ..Default::default()
+                    });
+                }
+                //
                 commands.push(CommandSpec {
                     about: op.description
                         .as_deref()
@@ -72,8 +86,8 @@ fn merge_module(project: &CoreSpec, module: &ModuleSpec, spec: Option<&Spec>) ->
                             },
                         ),
                     ]),
-                    flags: Vec::new(),
-                    args: op
+                    args: Vec::new(),
+                    flags: op
                         .clone()
                         .parameters
                         .into_iter()
@@ -98,7 +112,9 @@ fn merge_module(project: &CoreSpec, module: &ModuleSpec, spec: Option<&Spec>) ->
                             }),
                             Err(_) => None,
                         })
+                        .chain(flags)
                         .collect(),
+                    request_body: req_body,
                 });
             }
         }
@@ -148,4 +164,27 @@ fn normalize_name(_: &CoreSpec, current_name: &str) -> String {
     // only kebab supported atm so no match needed
     let deconstructed = deconstruct_case(current_name);
     deconstructed.1.join("-")
+}
+
+fn get_request_body_from_op(op: &Operation, spec: &Spec) -> Option<RequestBody> {
+    match op.request_body(spec) {
+        Ok(Some(v)) => {
+            let schema = v.content.get("application/json")?.schema.as_ref()?;
+            let Schema::Object(obj) = schema.resolve(spec).ok()? else {
+                return None;
+            };
+            let ObjectOrReference::Object(obj) = *obj else {
+                return None;
+            };
+            let Ok(obj) = serde_json::to_value(obj) else {
+                return None;
+            };
+            Some(RequestBody {
+                content_type: "application/json".to_string(),
+                required: v.required.unwrap_or(true),
+                schema: obj,
+            })
+        }
+        _ => None,
+    }
 }

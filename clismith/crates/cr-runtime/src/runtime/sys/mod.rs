@@ -8,6 +8,7 @@ pub const SYS_FLAG_OUTPUT: &str = "SYS_FLAG_OUTPUT";
 pub const SYS_FLAG_HEAD: &str = "SYS_FLAG_HEAD";
 pub const SYS_FLAG_OUTPUT_PROP: &str = "SYS_FLAG_OUTPUT_PROP";
 pub const SYS_FLAG_OUTPUT_SORT: &str = "SYS_FLAG_OUTPUT_SORT";
+pub const SYS_FLAG_REQ_BODY: &str = "SYS_FLAG_REQ_BODY";
 
 //commands
 pub const SYS_CMD_MANIFEST_LIST: &str = "SYS_CMD_MANIFEST_LIST";

@@ -68,7 +68,7 @@ async fn dispatch(inv: &Invocation) -> ExitCode {
     match http_dispatch(HttpRequestMessage {
         base_uri: inv.base_uri.clone(),
         route: route_resolver(inv),
-        body: None,               //TODO
+        body: inv.request_body(),
         headers: BTreeMap::new(), //TODO
         method: match inv
             .triggered_command

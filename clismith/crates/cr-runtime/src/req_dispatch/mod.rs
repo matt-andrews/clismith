@@ -25,6 +25,7 @@ pub async fn http_dispatch(req: HttpRequestMessage) -> Result<HttpResponseMessag
 
     let raw_result = reqwest::Client::new()
         .request(map_method(req.method), url)
+        .json(&req.body)
         .send()
         .await?;
 

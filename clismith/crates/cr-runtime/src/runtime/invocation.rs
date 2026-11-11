@@ -3,7 +3,7 @@ use std::path::PathBuf;
 
 use cr_core::v1spec::{module::CommandSpec, param::ParamSpec};
 
-use crate::runtime::sys::{SYS_FLAG_HEAD, SYS_FLAG_OUTPUT, SYS_FLAG_VERBOSE};
+use crate::runtime::sys::{SYS_FLAG_HEAD, SYS_FLAG_OUTPUT, SYS_FLAG_REQ_BODY, SYS_FLAG_VERBOSE};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Value {
@@ -42,6 +42,11 @@ impl Invocation {
 
     pub fn is_head(&self) -> bool {
         self.flag(SYS_FLAG_HEAD)
+    }
+
+    pub fn request_body(&self) -> Option<serde_json::Value> {
+        let json = self.str(SYS_FLAG_REQ_BODY)?;
+        serde_json::from_str(json).ok()
     }
 
     pub fn flag(&self, name: &str) -> bool {

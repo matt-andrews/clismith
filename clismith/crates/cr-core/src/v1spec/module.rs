@@ -38,8 +38,17 @@ pub struct CommandSpec {
     pub args: Vec<ParamSpec>,
     #[serde(default)]
     pub flags: Vec<ParamSpec>,
+    #[serde(default)]
+    pub request_body: Option<RequestBody>,
     #[serde(flatten)]
     pub bindings: BTreeMap<String, String>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+pub struct RequestBody {
+    pub content_type: String,
+    pub schema: serde_json::Value,
+    pub required: bool,
 }
 
 impl CommandSpec {
